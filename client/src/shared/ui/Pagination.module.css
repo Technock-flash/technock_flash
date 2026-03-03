@@ -1,0 +1,17 @@
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.root button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.info {
+  color: #888;
+  font-size: 0.9rem;
+}

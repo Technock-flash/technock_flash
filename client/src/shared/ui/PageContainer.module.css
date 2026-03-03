@@ -1,0 +1,14 @@
+.root {
+  width: 100%;
+}
+
+.title {
+  margin: 0 0 1.5rem;
+  font-size: 1.5rem;
+}
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: #888;
+}

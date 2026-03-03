@@ -1,0 +1,38 @@
+.steps {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  color: #666;
+}
+
+.steps .active {
+  color: #fff;
+}
+
+.form {
+  max-width: 480px;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section h3 {
+  margin: 0 0 1rem;
+}
+
+.section input {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}

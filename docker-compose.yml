@@ -1,0 +1,28 @@
+services:
+  redis:
+    image: redis:alpine
+    container_name: zimmarket_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: zimmarket_postgres
+    environment:
+      POSTGRES_USER: zimmarket_user
+      POSTGRES_PASSWORD: zimmarket_password
+      POSTGRES_DB: zimmarket_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - zimmarket_pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zimmarket_user -d zimmarket_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  zimmarket_pgdata:

@@ -1,0 +1,12 @@
+/**
+ * Slugify a string for URLs (lowercase, hyphens, alphanumeric).
+ */
+export function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "") || "slug";
+}
