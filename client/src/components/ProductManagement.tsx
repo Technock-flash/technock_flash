@@ -87,7 +87,6 @@ const ProductManagement = () => {
   };
 
   if (loading) return <p>Loading products...</p>;
-  if (loading) return <p style={{ color: 'var(--color-text-primary)' }}>Loading products...</p>;
   if (error) return <p style={{ color: 'var(--color-error)' }}>{error}</p>;
 
   return (
