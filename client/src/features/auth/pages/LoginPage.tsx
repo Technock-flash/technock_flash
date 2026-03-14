@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAppDispatch } from "../../../core/hooks/useAppDispatch";
 import { useAppSelector } from "../../../core/hooks/useAppSelector";
 import { login } from "../../../core/auth/authSlice";
-import { PageContainer } from "../../../shared/ui/PageContainer";
+import styles from "../../../components/Auth.module.css";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -23,74 +23,47 @@ export function LoginPage() {
   };
 
   return (
-    <PageContainer title="Login">
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          maxWidth: 360,
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-        }}
-      >
-        {successMessage && (
-          <p style={{ color: "#27ae60", margin: 0 }}>{successMessage}</p>
-        )}
-        {error && (
-          <p style={{ color: "#e74c3c", margin: 0 }}>{error}</p>
-        )}
-        <label>
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-            style={{
-              display: "block",
-              width: "100%",
-              marginTop: "0.25rem",
-              padding: "0.5rem 0.75rem",
-              background: "#2a2a2a",
-              border: "1px solid #444",
-              borderRadius: 4,
-              color: "#fff",
-            }}
-          />
-        </label>
-        <label>
-          Password
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-            style={{
-              display: "block",
-              width: "100%",
-              marginTop: "0.25rem",
-              padding: "0.5rem 0.75rem",
-              background: "#2a2a2a",
-              border: "1px solid #444",
-              borderRadius: 4,
-              color: "#fff",
-            }}
-          />
-        </label>
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Signing in..." : "Sign in"}
-        </button>
-        <p style={{ margin: 0 }}>
-          <Link to="/forgot-password" style={{ color: "#888", fontSize: "0.9rem" }}>
-            Forgot password?
-          </Link>
-        </p>
-        <p style={{ margin: 0, color: "#888" }}>
-          Don't have an account? <Link to="/register">Register</Link>
-        </p>
-      </form>
-    </PageContainer>
+    <div className={styles.container}>
+      <div className={styles.panel}>
+        <h1>Login</h1>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          {successMessage && <p className={styles.success}>{successMessage}</p>}
+          {error && <p className={styles.error}>{error}</p>}
+          <label>
+            Email
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              className={styles.input}
+            />
+          </label>
+          <label>
+            Password
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              className={styles.input}
+            />
+          </label>
+          <button type="submit" disabled={isLoading} className={styles.button}>
+            {isLoading ? "Signing in..." : "Sign in"}
+          </button>
+          <p className={styles.textCenter}>
+            <Link to="/forgot-password" className={styles.link}>
+              Forgot password?
+            </Link>
+          </p>
+          <p className={styles.textCenter}>
+            Don't have an account? <Link to="/register" className={styles.link}>Register</Link>
+          </p>
+        </form>
+      </div>
+    </div>
   );
 }

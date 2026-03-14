@@ -29,8 +29,23 @@ const OrderDetailsPage = lazy(() =>
 const VendorListPage = lazy(() =>
   import("../features/vendors/pages/VendorListPage").then((m) => ({ default: m.VendorListPage }))
 );
+const VendorLayout = lazy(
+  () => import("../features/admin/pages/VendorLayout").then((m) => ({ default: m.VendorLayout }))
+);
 const VendorDashboardPage = lazy(() =>
-  import("../features/vendor/pages/VendorDashboardPage").then((m) => ({ default: m.VendorDashboardPage }))
+  import("./VendorDashboardPage").then((m) => ({ default: m.default }))
+);
+const VendorOrdersPage = lazy(() =>
+  import("./VendorOrdersPage").then((m) => ({ default: m.VendorOrdersPage }))
+);
+const VendorSettingsPage = lazy(() =>
+  import("./VendorSettingsPage").then((m) => ({ default: m.VendorSettingsPage }))
+);
+const ProductManagement = lazy(() =>
+  import("./ProductManagement").then((m) => ({ default: m.ProductManagement }))
+);
+const AdminCategoriesPage = lazy(() =>
+  import("./AdminCategoriesPage").then((m) => ({ default: m.AdminCategoriesPage }))
 );
 const LoginPage = lazy(() =>
   import("../features/auth/pages/LoginPage").then((m) => ({ default: m.LoginPage }))
@@ -42,7 +57,7 @@ const ForgotPasswordPage = lazy(() =>
   import("../features/auth/pages/ForgotPasswordPage").then((m) => ({ default: m.ForgotPasswordPage }))
 );
 const AdminLayout = lazy(() =>
-  import("../features/admin/layout/AdminLayout").then((m) => ({ default: m.AdminLayout }))
+  import("../components/AdminLayout").then((m) => ({ default: m.AdminLayout }))
 );
 const AdminDashboardPage = lazy(() =>
   import("../features/admin/pages/AdminDashboardPage").then((m) => ({ default: m.AdminDashboardPage }))
@@ -131,11 +146,15 @@ export const router = createBrowserRouter([
         path: "vendor",
         element: (
           <ProtectedRoute roles={["VENDOR"]}>
-            <Suspense fallback={<Fallback />}>
-              <VendorDashboardPage />
-            </Suspense>
+            <Suspense fallback={<Fallback />}><VendorLayout /></Suspense>
           </ProtectedRoute>
         ),
+        children: [
+          { index: true, element: <Suspense fallback={<Fallback />}><VendorDashboardPage /></Suspense> },
+          { path: "products", element: <Suspense fallback={<Fallback />}><ProductManagement /></Suspense> }, 
+          { path: "orders", element: <Suspense fallback={<Fallback />}><VendorOrdersPage /></Suspense> },
+          { path: "settings", element: <Suspense fallback={<Fallback />}><VendorSettingsPage /></Suspense> },
+        ]
       },
       {
         path: "login",
@@ -166,6 +185,7 @@ export const router = createBrowserRouter([
           { path: "users", element: <AdminUsersPage /> },
           { path: "refunds", element: <AdminRefundsPage /> },
           { path: "cms", element: <AdminCmsPage /> },
+          { path: "categories", element: <AdminCategoriesPage /> },
           { path: "activity", element: <AdminActivityPage /> },
         ],
       },

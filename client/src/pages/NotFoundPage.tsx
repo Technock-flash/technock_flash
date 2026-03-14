@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
+import styles from "./NotFoundPage.module.css";
 
 export function NotFoundPage() {
   return (
-    <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
+    <div className={styles.container}>
       <h1>404</h1>
-      <p style={{ color: "#888", marginBottom: "1rem" }}>Page not found</p>
-      <Link to="/">Go home</Link>
+      <p className={styles.message}>Page not found</p>
+      <Link to="/" className={styles.link}>Go home</Link>
     </div>
   );
 }

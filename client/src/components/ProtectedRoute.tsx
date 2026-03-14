@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAppSelector } from "../core/hooks/useAppSelector";
+import { PageLoader } from "./PageLoader";
 
 type Role = "CUSTOMER" | "VENDOR" | "ADMIN";
 
@@ -13,9 +14,7 @@ export function ProtectedRoute({ children, roles }: Props) {
   const location = useLocation();
 
   if (!isHydrated) {
-    return (
-      <div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>
-    );
+    return <PageLoader />;
   }
 
   if (!user) {

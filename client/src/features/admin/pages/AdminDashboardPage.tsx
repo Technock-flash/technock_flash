@@ -1,46 +1,37 @@
-import { useEffect, useState } from "react";
-import { adminApi, type AdminAnalytics, type AdminStats } from "../../../services/api/adminApi";
+import { useState } from "react";
 import { formatPrice } from "../../../shared/utils/format";
-import { PageContainer } from "../../../shared/ui/PageContainer";
 import { RevenueChart } from "../components/RevenueChart";
+import { useAdminStats } from "../hooks/useAdminStats";
+import { useAdminAnalytics } from "../hooks/useAdminAnalytics";
 import styles from "./AdminDashboardPage.module.css";
 
 type Period = "day" | "week" | "month";
 
 export function AdminDashboardPage() {
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
   const [period, setPeriod] = useState<Period>("month");
-  const [error, setError] = useState<string | null>(null);
+  const { stats, loading: statsLoading, error: statsError } = useAdminStats();
+  const {
+    analytics,
+    loading: analyticsLoading,
+    error: analyticsError,
+  } = useAdminAnalytics(period);
 
-  useEffect(() => {
-    adminApi
-      .getStats()
-      .then(setStats)
-      .catch((err) => setError(err instanceof Error ? err.message : "Failed"));
-  }, []);
-
-  useEffect(() => {
-    adminApi
-      .getAnalytics(period)
-      .then(setAnalytics)
-      .catch(() => setAnalytics(null));
-  }, [period]);
-
-  if (error) {
+  if (statsError) {
     return (
-      <PageContainer title="Admin">
-        <p style={{ color: "#e74c3c" }}>{error}</p>
-      </PageContainer>
+      <div>
+        <h1>Admin Dashboard</h1>
+        <p style={{ color: "#e74c3c" }}>{statsError}</p>
+      </div>
     );
   }
 
-  if (!stats) {
-    return <PageContainer title="Admin" isLoading />;
+  if (statsLoading || !stats) {
+    return <div>Loading...</div>;
   }
 
   return (
-    <PageContainer title="Admin dashboard">
+    <div>
+      <h1>Admin Dashboard</h1>
       <div className={styles.periodTabs}>
         {(["day", "week", "month"] as const).map((p) => (
           <button
@@ -69,6 +60,8 @@ export function AdminDashboardPage() {
         </div>
       </div>
 
+      {analyticsLoading && <p>Loading analytics...</p>}
+      {analyticsError && <p style={{ color: "#e74c3c" }}>{analyticsError}</p>}
       {analytics && (
         <>
           <div className={styles.metricsGrid}>
@@ -96,6 +89,6 @@ export function AdminDashboardPage() {
           </div>
         </>
       )}
-    </PageContainer>
+    </div>
   );
 }

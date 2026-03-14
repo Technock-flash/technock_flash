@@ -18,6 +18,10 @@ async function refreshAccessToken(): Promise<string> {
     .then((res) => {
       refreshPromise = null;
       const token = res.data.accessToken;
+      // If we got a successful response but no token, the session is dead
+      if (!token) {
+        throw new Error("No refresh token available");
+      }
       store.dispatch(setAccessToken(token));
       return token;
     })
@@ -30,7 +34,12 @@ async function refreshAccessToken(): Promise<string> {
 
 apiClient.interceptors.request.use((config) => {
   const token = store.getState().auth.accessToken;
-  if (token) {
+  
+  // Do not send the Authorization header for the refresh request itself.
+  // The server uses the httpOnly cookie for this endpoint.
+  const isRefreshRequest = config.url?.includes("/auth/refresh");
+
+  if (token && !isRefreshRequest) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
@@ -48,10 +57,15 @@ apiClient.interceptors.response.use(
       original._retry = true;
       try {
         const token = await refreshAccessToken();
-        if (original.headers) original.headers.Authorization = `Bearer ${token}`;
+        if (original.headers) {
+          original.headers.Authorization = `Bearer ${token}`;
+        }
         return apiClient(original);
-      } catch {
-        // Refresh failed; auth state will clear on next hydrate check
+      } catch (refreshErr) {
+        // If the refresh call fails (e.g., 401), clear the auth state
+        // and reject the original request so the UI can redirect to login.
+        store.dispatch(setAccessToken(null));
+        return Promise.reject(refreshErr);
       }
     }
     return Promise.reject(err);

@@ -2,6 +2,12 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #f4f7f9;
+  transition: background-color 0.3s ease;
+}
+
+.adminBg {
+  background-color: #eaf4ff; /* Light blue background for admin section */
 }
 
 .header {
@@ -9,14 +15,19 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  background: #1a1a1a;
-  border-bottom: 1px solid #333;
+  background: rgba(235, 245, 255, 0.6); /* Light blue tint */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(67, 142, 226, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .logo {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #fff;
+  color: #1a202c;
   text-decoration: none;
 }
 
@@ -27,17 +38,18 @@
 }
 
 .nav a {
-  color: #aaa;
+  color: #4a5568;
   text-decoration: none;
   transition: color 0.2s;
+  font-weight: 500;
 }
 
 .nav a:hover {
-  color: #fff;
+  color: #4a90e2;
 }
 
 .badge {
-  background: #646cff;
+  background: #4a90e2;
   color: #fff;
   padding: 0.15rem 0.4rem;
   border-radius: 999px;
@@ -46,19 +58,21 @@
 
 .btn {
   background: transparent;
-  border: 1px solid #555;
-  color: #aaa;
+  border: 1px solid #cbd5e0;
+  color: #4a5568;
   cursor: pointer;
   padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  transition: all 0.2s;
 }
 
 .btn:hover {
-  color: #fff;
+  color: #1a202c;
+  border-color: #a0aec0;
 }
 
 .main {
   flex: 1;
-  padding: 1.5rem;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;

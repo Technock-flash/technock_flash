@@ -1,36 +1,23 @@
 import { Link } from "react-router-dom";
+import styles from "../components/HomePage.module.css";
 
 export function HomePage() {
   return (
-    <div style={{ textAlign: "center", padding: "2rem 0" }}>
+    <div className={styles.container}>
       <h1>Welcome to ZimMarket</h1>
-      <p style={{ color: "#888", marginBottom: "2rem" }}>
+      <p className={styles.subtitle}>
         Your multi-vendor marketplace
       </p>
-      <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+      <div className={styles.actions}>
         <Link
           to="/products"
-          style={{
-            padding: "0.75rem 1.5rem",
-            background: "#646cff",
-            color: "#fff",
-            borderRadius: 4,
-            textDecoration: "none",
-            fontWeight: 600,
-          }}
+          className={`${styles.btn} ${styles.btnPrimary}`}
         >
           Browse products
         </Link>
         <Link
           to="/vendors"
-          style={{
-            padding: "0.75rem 1.5rem",
-            background: "#333",
-            color: "#fff",
-            borderRadius: 4,
-            textDecoration: "none",
-            border: "1px solid #555",
-          }}
+          className={`${styles.btn} ${styles.btnSecondary}`}
         >
           View vendors
         </Link>

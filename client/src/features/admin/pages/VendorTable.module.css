@@ -1,0 +1,163 @@
+.toolbar {
+  margin-bottom: 1rem;
+}
+
+.filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filters button {
+  padding: 0.5rem 1rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  color: #4a5568;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.filters button.active {
+  background: #4a90e2;
+  border-color: #4a90e2;
+  color: #fff;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.header h1 {
+  margin: 0;
+}
+
+.createButton {
+  padding: 0.6rem 1.2rem;
+  background: #4a90e2;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s, transform 0.2s ease-out;
+}
+
+.createButton:hover {
+  background-color: #357abd;
+  transform: translateY(-1px);
+}
+
+.searchInput {
+  padding: 0.6rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #fff;
+  min-width: 250px;
+  font-size: 0.9rem;
+  color: #2d3748;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.table th,
+.table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  color: #2d3748;
+}
+
+.table th {
+  color: #718096;
+  font-weight: 500;
+  background-color: rgba(248, 250, 252, 0.7);
+}
+
+.sortableHeader {
+  cursor: pointer;
+  user-select: none;
+}
+
+.btnApprove {
+  padding: 0.25rem 0.5rem;
+  background: #e6fffa;
+  border: none;
+  border-radius: 4px;
+  color: #2c7a7b;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease-out;
+}
+
+.btnApprove:hover {
+  background-color: #b2f5ea;
+}
+
+.btnReject {
+  padding: 0.25rem 0.5rem;
+  background: #fff5f5;
+  border: none;
+  border-radius: 4px;
+  color: #c53030;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease-out;
+}
+
+.btnReject:hover {
+  background-color: #fed7d7;
+}
+
+.btnEdit {
+  padding: 0.25rem 0.5rem;
+  background: #ebf8ff;
+  border: none;
+  border-radius: 4px;
+  color: #3182ce;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease-out;
+}
+
+.btnEdit:hover {
+  background-color: #bee3f8;
+}
+
+.btnDelete {
+  padding: 0.25rem 0.5rem;
+  background: #fff5f5;
+  border: none;
+  border-radius: 4px;
+  color: #c53030;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease-out;
+}
+
+.btnDelete:hover {
+  background-color: #fed7d7;
+}
+
+.select {
+  padding: 0.25rem 0.5rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  color: #2d3748;
+}

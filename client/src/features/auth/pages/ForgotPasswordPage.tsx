@@ -1,18 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authApi } from "../../../services/api/authApi";
-import { PageContainer } from "../../../shared/ui/PageContainer";
-
-const inputStyle = {
-  display: "block",
-  width: "100%",
-  marginTop: "0.25rem",
-  padding: "0.5rem 0.75rem",
-  background: "#2a2a2a",
-  border: "1px solid #444",
-  borderRadius: 4,
-  color: "#fff",
-} as const;
+import styles from "../../../components/Auth.module.css";
 
 export function ForgotPasswordPage() {
   const navigate = useNavigate();
@@ -73,45 +62,50 @@ export function ForgotPasswordPage() {
   };
 
   return (
-    <PageContainer title="Forgot password">
-      {step === 1 ? (
-        <form onSubmit={handleStep1} style={{ maxWidth: 400, display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {error && <p style={{ color: "#e74c3c", margin: 0 }}>{error}</p>}
-          <p style={{ color: "#888", margin: 0 }}>
-            Enter your email. We will show your secret question so you can reset your password.
-          </p>
-          <label>
-            Email
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={inputStyle} />
-          </label>
-          <button type="submit" disabled={isLoading}>{isLoading ? "Checking..." : "Continue"}</button>
-        </form>
-      ) : (
-        <form onSubmit={handleStep2} style={{ maxWidth: 400, display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {error && <p style={{ color: "#e74c3c", margin: 0 }}>{error}</p>}
-          <label>
-            Secret question
-            <input type="text" value={secretQuestion ?? ""} readOnly style={{ ...inputStyle, opacity: 0.8, cursor: "not-allowed" }} />
-          </label>
-          <label>
-            Your answer
-            <input type="text" value={secretAnswer} onChange={(e) => setSecretAnswer(e.target.value)} required placeholder="Enter the answer you set during registration" style={inputStyle} />
-          </label>
-          <label>
-            New password (min 8 characters)
-            <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={8} style={inputStyle} />
-          </label>
-          <label>
-            Confirm new password
-            <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={8} style={inputStyle} />
-          </label>
-          <button type="submit" disabled={isLoading}>{isLoading ? "Resetting..." : "Reset password"}</button>
-          <button type="button" onClick={() => { setStep(1); setSecretQuestion(null); setSecretAnswer(""); setError(null); }} style={{ background: "transparent", color: "#888" }}>
-            Use a different email
-          </button>
-        </form>
-      )}
-      <p style={{ marginTop: "1rem", color: "#888" }}>Remember your password? <Link to="/login">Login</Link></p>
-    </PageContainer>
+    <div className={styles.container}>
+      <div className={styles.panel}>
+        <h1>Forgot Password</h1>
+        {step === 1 ? (
+          <form onSubmit={handleStep1} className={styles.form}>
+            {error && <p className={styles.error}>{error}</p>}
+            <p className={styles.textCenter} style={{ color: "#4a5568" }}>
+              Enter your email to reset your password.
+            </p>
+            <label>
+              Email
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={styles.input} />
+            </label>
+            <button type="submit" disabled={isLoading} className={styles.button}>{isLoading ? "Checking..." : "Continue"}</button>
+          </form>
+        ) : (
+          <form onSubmit={handleStep2} className={styles.form}>
+            {error && <p className={styles.error}>{error}</p>}
+            <label>
+              Secret question
+              <input type="text" value={secretQuestion ?? ""} readOnly className={styles.input} style={{ opacity: 0.8, cursor: "not-allowed" }} />
+            </label>
+            <label>
+              Your answer
+              <input type="text" value={secretAnswer} onChange={(e) => setSecretAnswer(e.target.value)} required placeholder="Enter the answer you set" className={styles.input} />
+            </label>
+            <label>
+              New password (min 8 characters)
+              <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={8} className={styles.input} />
+            </label>
+            <label>
+              Confirm new password
+              <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={8} className={styles.input} />
+            </label>
+            <button type="submit" disabled={isLoading} className={styles.button}>{isLoading ? "Resetting..." : "Reset password"}</button>
+            <button type="button" onClick={() => { setStep(1); setSecretQuestion(null); setSecretAnswer(""); setError(null); }} style={{ background: "transparent", color: "#4a5568", border: "none", cursor: "pointer" }}>
+              Use a different email
+            </button>
+          </form>
+        )}
+        <p className={styles.textCenter} style={{ marginTop: "1rem" }}>
+          Remember your password? <Link to="/login" className={styles.link}>Login</Link>
+        </p>
+      </div>
+    </div>
   );
 }

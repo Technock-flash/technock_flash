@@ -41,12 +41,12 @@ export function VendorListPage() {
               background: "#1e1e1e",
               borderRadius: 8,
               textDecoration: "none",
-              color: "inherit",
+              color: "#120E0E",
             }}
           >
-            <h3 style={{ margin: "0 0 0.5rem" }}>{v.name}</h3>
+            <h3 style={{ margin: "0 0 0.5rem", color: "#1E1B1B" }}>{v.name}</h3>
             {v.description && (
-              <p style={{ margin: 0, color: "#888", fontSize: "0.875rem" }}>
+              <p style={{ margin: 0, color: "#aaaaaa", fontSize: "0.875rem" }}>
                 {v.description}
               </p>
             )}

@@ -5,6 +5,7 @@ import { RouterProvider } from "react-router-dom";
 import { store } from "./core/store/store";
 import { hydrateAuth } from "./core/auth/authSlice";
 import { router } from "./routes";
+
 import "./index.css";
 
 store.dispatch(hydrateAuth());

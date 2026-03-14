@@ -33,12 +33,13 @@ export function VendorDashboardPage() {
         <div
           style={{
             padding: "1rem",
-            background: "#1e1e1e",
+            background: "var(--color-bg-secondary, #f4f4f4)",
             borderRadius: 8,
+            color: "var(--color-text-primary)",
           }}
         >
-          <div style={{ color: "#888", fontSize: "0.875rem" }}>Products</div>
-          <div style={{ fontSize: "1.5rem", fontWeight: 600 }}>
+          <div style={{ color: "var(--color-text-secondary, #666)", fontSize: "0.875rem" }}>Products</div>
+          <div style={{ fontSize: "1.5rem", fontWeight: 600, color: "var(--color-text-primary)" }}>
             {products.length}
           </div>
         </div>

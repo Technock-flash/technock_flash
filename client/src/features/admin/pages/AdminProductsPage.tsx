@@ -1,66 +1,137 @@
-import { useEffect, useState } from "react";
-import { adminApi, type ProductForModeration } from "../../../services/api/adminApi";
+import {
+  adminApi,
+  type ProductForModeration,
+} from "../../../services/api/adminApi";
 import { formatPrice } from "../../../shared/utils/format";
-import { PageContainer } from "../../../shared/ui/PageContainer";
 import { Pagination } from "../../../shared/ui/Pagination";
+import { useAdminTable } from "../hooks/useAdminTable";
+import { useEntityManagement } from "../../../shared/hooks/useEntityManagement";
+import { ProductFormModal } from "../../products/components/ProductFormModal";
+import { ConfirmationModal } from "../../../shared/ui/ConfirmationModal";
 import styles from "./AdminTable.module.css";
 
 export function AdminProductsPage() {
-  const [items, setItems] = useState<ProductForModeration[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [status, setStatus] = useState<string>("PENDING");
-  const [loading, setLoading] = useState(true);
+  const { items, total, page, status, loading, error, search, sortBy, sortOrder, setPage, setStatus, setSearch, onSort, refetch } =
+    useAdminTable<ProductForModeration>(adminApi.listProductsForModeration, {
+      limit: 20,
+      initialStatus: "PENDING",
+    });
 
-  const fetch = () => {
-    setLoading(true);
-    adminApi
-      .listProductsForModeration({ status, page, limit: 20 })
-      .then((res) => {
-        setItems(res.items);
-        setTotal(res.total);
-      })
-      .finally(() => setLoading(false));
+  const {
+    isFormModalOpen,
+    editingItem: editingProduct,
+    isDeleteModalOpen,
+    deletingItem: deletingProduct,
+    isDeleting,
+    handleOpenCreate,
+    handleOpenEdit,
+    handleCloseFormModal,
+    handleOpenDelete,
+    handleCloseDeleteModal,
+    handleConfirmDelete: confirmDelete,
+    handleSave: handleEntitySave,
+  } = useEntityManagement<ProductForModeration>({
+      // The list() is handled by useAdminTable, so we provide a dummy function
+      list: () => Promise.resolve([]),
+      remove: adminApi.deleteProduct,
+      create: adminApi.createProduct,
+      update: adminApi.updateProduct,
+    }, "product");
+
+  const renderSortArrow = (column: string) => {
+    if (sortBy !== column) return null;
+    return sortOrder === "asc" ? " ▲" : " ▼";
   };
 
-  useEffect(() => {
-    fetch();
-  }, [status, page]);
+  const SortableHeader = ({ column, label }: { column: string; label: string }) => (
+    <th onClick={() => onSort(column)} className={styles.sortableHeader}>
+      {label}
+      {renderSortArrow(column)}
+    </th>
+  );
 
   const handleApprove = (id: string) => {
-    adminApi.approveProduct(id).then(fetch);
+    adminApi.approveProduct(id).then(refetch);
   };
 
   const handleReject = (id: string) => {
-    adminApi.rejectProduct(id).then(fetch);
+    adminApi.rejectProduct(id).then(refetch);
+  };
+
+  const handleSave = (data: any) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("priceCents", String(Math.round(Number(data.price) * 100)));
+    formData.append("stock", String(data.stock));
+    formData.append("categoryId", data.categoryId);
+
+    if (data.images && data.images.length > 0) {
+      data.images.forEach((file: File) => {
+        formData.append("images", file);
+      });
+    }
+
+    if (data.imagesToRemove && data.imagesToRemove.length > 0) {
+      data.imagesToRemove.forEach((url: string) => {
+        formData.append("imagesToRemove[]", url);
+      });
+    }
+    return handleEntitySave(formData);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await confirmDelete();
+      refetch();
+    } finally {
+      // isDeleting is handled by the hook
+    }
   };
 
   return (
-    <PageContainer title="Product moderation">
-      <div className={styles.filters}>
-        {["PENDING", "APPROVED", "REJECTED"].map((s) => (
-          <button
-            key={s}
-            type="button"
-            className={status === s ? styles.active : ""}
-            onClick={() => setStatus(s)}
-          >
-            {s}
-          </button>
-        ))}
+    <div>
+      <div className={styles.header}>
+        <h1>Product Moderation</h1>
+        <div className={styles.headerActions}>
+          <input
+            type="search"
+            placeholder="Search by product name..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={styles.searchInput}
+          />
+          <button className={styles.createButton} onClick={handleOpenCreate}>Create Product</button>
+        </div>
+      </div>
+      <div className={styles.toolbar}>
+        <div className={styles.filters}>
+          {["PENDING", "APPROVED", "REJECTED"].map((s) => (
+            <button
+              key={s}
+              type="button"
+              className={status === s ? styles.active : ""}
+              onClick={() => setStatus(s)}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
       </div>
       {loading ? (
         <p>Loading...</p>
+      ) : error ? (
+        <p style={{ color: "#e74c3c" }}>{error}</p>
       ) : (
         <>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Product</th>
-                <th>Vendor</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <SortableHeader column="name" label="Product" />
+                <SortableHeader column="vendor" label="Vendor" />
+                <SortableHeader column="priceCents" label="Price" />
+                <SortableHeader column="moderationStatus" label="Status" />
+                <th style={{ width: 150 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -89,6 +160,12 @@ export function AdminProductsPage() {
                         </button>
                       </>
                     )}
+                    {p.moderationStatus !== "PENDING" && (
+                      <>
+                        <button type="button" className={styles.btnEdit} onClick={() => handleOpenEdit(p)}>Edit</button>
+                        <button type="button" className={styles.btnDelete} onClick={() => handleOpenDelete(p)}>Delete</button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -102,6 +179,21 @@ export function AdminProductsPage() {
           />
         </>
       )}
-    </PageContainer>
+      <ProductFormModal
+        isOpen={isFormModalOpen}
+        onClose={handleCloseFormModal}
+        onSave={handleSave}
+        product={editingProduct}
+      />
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Deletion"
+        message={`Are you sure you want to delete the product "${deletingProduct?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        isConfirming={isDeleting}
+      />
+    </div>
   );
 }

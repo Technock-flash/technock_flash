@@ -1,0 +1,120 @@
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.98); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(30, 41, 59, 0.5); /* Slate-blue tint */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal {
+  background: rgba(235, 245, 255, 0.6); /* Light blue tint */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(67, 142, 226, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  animation: scaleIn 0.2s ease-out;
+}
+
+.modal h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #1a202c;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #4a5568;
+}
+
+.formGroup input,
+.formGroup textarea,
+.select {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  color: #1a202c;
+  font-size: 1rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.actions button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s, transform 0.2s ease-out;
+}
+
+.actions button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.actions button[type="button"] {
+  background: #fff;
+  border: 1px solid #cbd5e0;
+  color: #2d3748;
+}
+
+.actions button[type="button"]:hover:not(:disabled) {
+  background-color: #f8fafc;
+}
+
+.actions button[type="submit"] {
+  background: #4a90e2;
+  border: 1px solid #4a90e2;
+  color: #fff;
+}
+
+.actions button[type="submit"]:hover:not(:disabled) {
+  background-color: #357abd;
+}
+
+.actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #c53030;
+  background: #fff5f5;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin: 0;
+  text-align: center;
+  margin-bottom: 1rem;
+}

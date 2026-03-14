@@ -1,0 +1,40 @@
+.layout {
+  display: flex;
+  padding: 1.5rem;
+  gap: 1.5rem;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #fff;
+  padding: 1rem;
+  flex-shrink: 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  height: fit-content;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: #4a5568;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
+  font-weight: 500;
+}
+
+.sidebar nav a.active {
+  background-color: #4a90e2;
+  color: #fff;
+}
+
+.content {
+  flex-grow: 1;
+}

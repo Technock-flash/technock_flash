@@ -1,0 +1,134 @@
+import { useState, useEffect } from "react";
+import { vendorApi, type VendorProduct } from "../services/api/vendorApi";
+import { formatPrice } from "../shared/utils/format";
+import { ProductFormModal } from "../features/products/components/ProductFormModal";
+import { ConfirmationModal } from "../components/ConfirmationModal";
+import { useEntityManagement } from "./useEntityManagement";
+import styles from "../features/admin/pages/VendorTable.module.css";
+
+export function ProductManagement() {
+  const {
+    items: products,
+    loading,
+    error,
+    refetch,
+    isFormModalOpen,
+    editingItem: editingProduct,
+    isDeleting,
+    isDeleteModalOpen,
+    deletingItem: deletingProduct,
+    handleOpenCreate,
+    handleOpenEdit,
+    handleCloseFormModal,
+    handleOpenDelete,
+    handleCloseDeleteModal,
+    handleConfirmDelete,
+    handleSave: handleProductSave,
+  } = useEntityManagement<VendorProduct>(
+    {
+      list: vendorApi.getMyProducts,
+      remove: vendorApi.deleteProduct,
+      create: vendorApi.createProduct,
+      update: vendorApi.updateProduct,
+    },
+    "product"
+  );
+
+  const handleSave = (data: any) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("priceCents", String(Math.round(Number(data.price) * 100)));
+    formData.append("stock", String(data.stock));
+    formData.append("categoryId", data.categoryId);
+
+    if (data.images && data.images.length > 0) {
+      data.images.forEach((file: File) => {
+        formData.append("images", file);
+      });
+    }
+
+    if (data.imagesToRemove && data.imagesToRemove.length > 0) {
+      data.imagesToRemove.forEach((url: string) => {
+        formData.append("imagesToRemove[]", url);
+      });
+    }
+
+    // The hook's handleSave will close modal and refetch on success
+    return handleProductSave(formData);
+  };
+
+  return (
+    <div>
+      <div className={styles.header}>
+        <h1>My Products</h1>
+        <button className={styles.createButton} onClick={handleOpenCreate}>
+          Create New Product
+        </button>
+      </div>
+
+      {loading && <p>Loading...</p>}
+      {error && <p style={{ color: "#e74c3c" }}>{error}</p>}
+      {!loading && !error && (
+        <>
+          {products.length === 0 ? (
+            <p>You haven't created any products yet. Get started by creating one!</p>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((p) => (
+                  <tr key={p.id}>
+                    <td>{p.name}</td>
+                    <td>{formatPrice(p.priceCents)}</td>
+                    <td>{p.stock}</td>
+                    <td>{p.moderationStatus}</td>
+                    <td>
+                      <button
+                        className={styles.btnEdit}
+                        onClick={() => handleOpenEdit(p)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className={styles.btnDelete}
+                        onClick={() => handleOpenDelete(p)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
+      )}
+
+      <ProductFormModal
+        isOpen={isFormModalOpen}
+        onClose={handleCloseFormModal}
+        onSave={handleSave}
+        product={editingProduct}
+      />
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Deletion"
+        message={`Are you sure you want to delete the product "${deletingProduct?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        isConfirming={isDeleting}
+      />
+    </div>
+  );
+}

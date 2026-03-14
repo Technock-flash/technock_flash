@@ -1,45 +1,30 @@
-import { useEffect, useState } from "react";
 import {
   adminApi,
   type RefundWithOrder,
 } from "../../../services/api/adminApi";
 import { formatPrice } from "../../../shared/utils/format";
-import { PageContainer } from "../../../shared/ui/PageContainer";
 import { Pagination } from "../../../shared/ui/Pagination";
+import { useAdminTable } from "../hooks/useAdminTable";
 import styles from "./AdminTable.module.css";
 
 export function AdminRefundsPage() {
-  const [items, setItems] = useState<RefundWithOrder[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [status, setStatus] = useState<string>("PENDING");
-  const [loading, setLoading] = useState(true);
-
-  const fetch = () => {
-    setLoading(true);
-    adminApi
-      .listRefunds({ status, page, limit: 20 })
-      .then((res) => {
-        setItems(res.items);
-        setTotal(res.total);
-      })
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    fetch();
-  }, [status, page]);
+  const { items, total, page, status, loading, error, setPage, setStatus, refetch } =
+    useAdminTable<RefundWithOrder>(adminApi.listRefunds, {
+      limit: 20,
+      initialStatus: "PENDING",
+    });
 
   const handleApprove = (id: string) => {
-    adminApi.approveRefund(id).then(fetch);
+    adminApi.approveRefund(id).then(refetch);
   };
 
   const handleReject = (id: string) => {
-    adminApi.rejectRefund(id).then(fetch);
+    adminApi.rejectRefund(id).then(refetch);
   };
 
   return (
-    <PageContainer title="Refund handling">
+    <div>
+      <h1>Refund Handling</h1>
       <div className={styles.filters}>
         {["PENDING", "APPROVED", "REJECTED", "COMPLETED"].map((s) => (
           <button
@@ -54,6 +39,8 @@ export function AdminRefundsPage() {
       </div>
       {loading ? (
         <p>Loading...</p>
+      ) : error ? (
+        <p style={{ color: "#e74c3c" }}>{error}</p>
       ) : (
         <>
           <table className={styles.table}>
@@ -105,6 +92,6 @@ export function AdminRefundsPage() {
           />
         </>
       )}
-    </PageContainer>
+    </div>
   );
 }

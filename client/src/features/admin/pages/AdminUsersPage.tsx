@@ -1,48 +1,72 @@
-import { useEffect, useState } from "react";
 import { adminApi, type AdminUser } from "../../../services/api/adminApi";
-import { PageContainer } from "../../../shared/ui/PageContainer";
 import { Pagination } from "../../../shared/ui/Pagination";
+import { useAdminTable } from "../hooks/useAdminTable";
+import { useEntityManagement } from "../../../shared/hooks/useEntityManagement";
 import styles from "./AdminTable.module.css";
+import { UserFormModal } from "../components/UserFormModal";
 
 export function AdminUsersPage() {
-  const [items, setItems] = useState<AdminUser[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const { items, total, page, loading, error, search, sortBy, sortOrder, setPage, setSearch, onSort, refetch } =
+    useAdminTable<AdminUser>(adminApi.listUsers, { limit: 20 });
 
-  const fetch = () => {
-    setLoading(true);
-    adminApi
-      .listUsers({ page, limit: 20 })
-      .then((res) => {
-        setItems(res.items);
-        setTotal(res.total);
-      })
-      .finally(() => setLoading(false));
+  const {
+    isFormModalOpen,
+    handleOpenCreate,
+    handleCloseFormModal,
+    handleSave,
+  } = useEntityManagement<AdminUser>({
+    // list and remove are not needed here as useAdminTable handles it
+    create: adminApi.createUser,
+    // update is handled by role change inline
+  }, "user");
+
+  const renderSortArrow = (column: string) => {
+    if (sortBy !== column) return null;
+    return sortOrder === "asc" ? " ▲" : " ▼";
   };
 
-  useEffect(() => {
-    fetch();
-  }, [page]);
+  const SortableHeader = ({ column, label }: { column: string; label: string }) => (
+    <th onClick={() => onSort(column)} className={styles.sortableHeader}>
+      {label}
+      {renderSortArrow(column)}
+    </th>
+  );
 
   const handleRoleChange = (id: string, role: string) => {
-    adminApi.updateUserRole(id, role).then(fetch);
+    adminApi.updateUserRole(id, role).then(refetch);
   };
 
   return (
-    <PageContainer title="User management">
+    <div>
+      <div className={styles.header}>
+        <h1>User Management</h1>
+        <div className={styles.headerActions}>
+          <input
+            type="search"
+            placeholder="Search by email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={styles.searchInput}
+          />
+          <button className={styles.createButton} onClick={handleOpenCreate}>
+            Create User
+          </button>
+        </div>
+      </div>
       {loading ? (
         <p>Loading...</p>
+      ) : error ? (
+        <p style={{ color: "#e74c3c" }}>{error}</p>
       ) : (
         <>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Verified</th>
-                <th>Joined</th>
-                <th>Actions</th>
+                <SortableHeader column="email" label="Email" />
+                <SortableHeader column="role" label="Role" />
+                <SortableHeader column="emailVerifiedAt" label="Verified" />
+                <SortableHeader column="createdAt" label="Joined" />
+                <th style={{ width: 120 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -51,7 +75,7 @@ export function AdminUsersPage() {
                   <td>{u.email}</td>
                   <td>{u.role}</td>
                   <td>{u.emailVerifiedAt ? "Yes" : "No"}</td>
-                  <td>{new Date(u.createdAt).toLocaleDateString()}</td>
+                  <td>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "-"}</td>
                   <td>
                     <select
                       value={u.role}
@@ -75,6 +99,11 @@ export function AdminUsersPage() {
           />
         </>
       )}
-    </PageContainer>
+      <UserFormModal
+        isOpen={isFormModalOpen}
+        onClose={handleCloseFormModal}
+        onSave={handleSave}
+      />
+    </div>
   );
 }

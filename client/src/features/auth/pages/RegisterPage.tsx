@@ -5,18 +5,7 @@ import { useAppDispatch } from "../../../core/hooks/useAppDispatch";
 import { register } from "../../../core/auth/authSlice";
 import { authApi, type SecretQuestion } from "../../../services/api/authApi";
 import { categoryApi, type Category } from "../../../services/api/categoryApi";
-import { PageContainer } from "../../../shared/ui/PageContainer";
-
-const inputStyle = {
-  display: "block",
-  width: "100%",
-  marginTop: "0.25rem",
-  padding: "0.5rem 0.75rem",
-  background: "#2a2a2a",
-  border: "1px solid #444",
-  borderRadius: 4,
-  color: "#fff",
-} as const;
+import styles from "../../../components/Auth.module.css";
 
 export function RegisterPage() {
   const dispatch = useAppDispatch();
@@ -71,19 +60,12 @@ export function RegisterPage() {
   );
 
   return (
-    <PageContainer title="Register as vendor">
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          maxWidth: 480,
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-        }}
-      >
-        {error && (
-          <p style={{ color: "#e74c3c", margin: 0 }}>{String(error)}</p>
-        )}
+    <div className={styles.container}>
+      <div className={styles.panel}>
+        <h1>Register as Vendor</h1>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          {error && <p className={styles.error}>{String(error)}</p>}
+
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
           <label>
             First name
@@ -92,7 +74,7 @@ export function RegisterPage() {
               value={form.firstName}
               onChange={(e) => setForm((p) => ({ ...p, firstName: e.target.value }))}
               required
-              style={inputStyle}
+              className={styles.input}
             />
           </label>
           <label>
@@ -102,7 +84,7 @@ export function RegisterPage() {
               value={form.surname}
               onChange={(e) => setForm((p) => ({ ...p, surname: e.target.value }))}
               required
-              style={inputStyle}
+              className={styles.input}
             />
           </label>
         </div>
@@ -114,7 +96,7 @@ export function RegisterPage() {
             value={form.nationalId}
             onChange={(e) => setForm((p) => ({ ...p, nationalId: e.target.value }))}
             required
-            style={inputStyle}
+            className={styles.input}
           />
         </label>
         <label>
@@ -124,7 +106,7 @@ export function RegisterPage() {
             value={form.phoneNumber}
             onChange={(e) => setForm((p) => ({ ...p, phoneNumber: e.target.value }))}
             required
-            style={inputStyle}
+            className={styles.input}
           />
         </label>
         <label>
@@ -134,7 +116,7 @@ export function RegisterPage() {
             value={form.email}
             onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
             required
-            style={inputStyle}
+            className={styles.input}
           />
         </label>
         <label>
@@ -145,11 +127,11 @@ export function RegisterPage() {
             onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
             required
             minLength={8}
-            style={inputStyle}
+            className={styles.input}
           />
         </label>
 
-        <hr style={{ borderColor: "#333" }} />
+        <hr style={{ borderColor: "#cbd5e0" }} />
         <h3 style={{ margin: 0, fontSize: "1rem" }}>Vendor details</h3>
         <label>
           Business name
@@ -158,7 +140,7 @@ export function RegisterPage() {
             value={form.vendorName}
             onChange={(e) => setForm((p) => ({ ...p, vendorName: e.target.value }))}
             required
-            style={inputStyle}
+            className={styles.input}
           />
         </label>
         <label>
@@ -167,7 +149,7 @@ export function RegisterPage() {
             value={form.vendorDescription}
             onChange={(e) => setForm((p) => ({ ...p, vendorDescription: e.target.value }))}
             rows={3}
-            style={{ ...inputStyle, resize: "vertical" }}
+            className={styles.input}
           />
         </label>
         <label>
@@ -178,7 +160,7 @@ export function RegisterPage() {
               maxHeight: 120,
               overflowY: "auto",
               padding: "0.5rem",
-              background: "#1e1e1e",
+              background: "rgba(255, 255, 255, 0.5)",
               borderRadius: 4,
               display: "flex",
               flexWrap: "wrap",
@@ -207,7 +189,7 @@ export function RegisterPage() {
           </div>
         </label>
 
-        <hr style={{ borderColor: "#333" }} />
+        <hr style={{ borderColor: "#cbd5e0" }} />
         <h3 style={{ margin: 0, fontSize: "1rem" }}>Security (for password recovery)</h3>
         <label>
           Secret question
@@ -217,7 +199,7 @@ export function RegisterPage() {
               setForm((p) => ({ ...p, secretQuestionId: e.target.value }))
             }
             required
-            style={inputStyle}
+            className={styles.select}
           >
             <option value="">Select a question</option>
             {secretQuestions.map((q) => (
@@ -235,17 +217,18 @@ export function RegisterPage() {
             onChange={(e) => setForm((p) => ({ ...p, secretAnswer: e.target.value }))}
             required
             placeholder="Used to recover your password if forgotten"
-            style={inputStyle}
+            className={styles.input}
           />
         </label>
 
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating account..." : "Register"}
-        </button>
-        <p style={{ margin: 0, color: "#888" }}>
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-      </form>
-    </PageContainer>
+          <button type="submit" disabled={isLoading} className={styles.button}>
+            {isLoading ? "Creating account..." : "Register"}
+          </button>
+          <p className={styles.textCenter}>
+            Already have an account? <Link to="/login" className={styles.link}>Login</Link>
+          </p>
+        </form>
+      </div>
+    </div>
   );
 }

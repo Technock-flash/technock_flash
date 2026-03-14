@@ -1,44 +1,29 @@
-import { useEffect, useState } from "react";
 import {
   adminApi,
   type VendorWithOwner,
 } from "../../../services/api/adminApi";
-import { PageContainer } from "../../../shared/ui/PageContainer";
 import { Pagination } from "../../../shared/ui/Pagination";
+import { useAdminTable } from "../hooks/useAdminTable";
 import styles from "./AdminTable.module.css";
 
 export function AdminVendorsPage() {
-  const [items, setItems] = useState<VendorWithOwner[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [status, setStatus] = useState<string>("PENDING");
-  const [loading, setLoading] = useState(true);
-
-  const fetch = () => {
-    setLoading(true);
-    adminApi
-      .listVendors({ status, page, limit: 20 })
-      .then((res) => {
-        setItems(res.items);
-        setTotal(res.total);
-      })
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    fetch();
-  }, [status, page]);
+  const { items, total, page, status, loading, error, setPage, setStatus, refetch } =
+    useAdminTable<VendorWithOwner>(adminApi.listVendors, {
+      limit: 20,
+      initialStatus: "PENDING",
+    });
 
   const handleApprove = (id: string) => {
-    adminApi.approveVendor(id).then(fetch);
+    adminApi.approveVendor(id).then(refetch);
   };
 
   const handleReject = (id: string) => {
-    adminApi.rejectVendor(id).then(fetch);
+    adminApi.rejectVendor(id).then(refetch);
   };
 
   return (
-    <PageContainer title="Vendor approval">
+    <div>
+      <h1>Vendor Approval</h1>
       <div className={styles.filters}>
         {["PENDING", "APPROVED", "REJECTED"].map((s) => (
           <button
@@ -53,6 +38,8 @@ export function AdminVendorsPage() {
       </div>
       {loading ? (
         <p>Loading...</p>
+      ) : error ? (
+        <p style={{ color: "#e74c3c" }}>{error}</p>
       ) : (
         <>
           <table className={styles.table}>
@@ -102,6 +89,6 @@ export function AdminVendorsPage() {
           />
         </>
       )}
-    </PageContainer>
+    </div>
   );
 }

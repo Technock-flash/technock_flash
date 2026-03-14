@@ -1,32 +1,26 @@
-import { useEffect, useState } from "react";
 import {
   adminApi,
   type ActivityLog,
 } from "../../../services/api/adminApi";
-import { PageContainer } from "../../../shared/ui/PageContainer";
 import { Pagination } from "../../../shared/ui/Pagination";
+import { useAdminTable } from "../hooks/useAdminTable";
 import styles from "./AdminTable.module.css";
 
 export function AdminActivityPage() {
-  const [items, setItems] = useState<ActivityLog[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    adminApi
-      .listActivityLogs({ page, limit: 50 })
-      .then((res) => {
-        setItems(res.items);
-        setTotal(res.total);
-      })
-      .finally(() => setLoading(false));
-  }, [page]);
+  const { items, total, page, loading, error, setPage } = useAdminTable<ActivityLog>(
+    adminApi.listActivityLogs,
+    {
+      limit: 50,
+    }
+  );
 
   return (
-    <PageContainer title="System activity logs">
+    <div>
+      <h1>System Activity Logs</h1>
       {loading ? (
         <p>Loading...</p>
+      ) : error ? (
+        <p style={{ color: "#e74c3c" }}>{error}</p>
       ) : (
         <>
           <table className={styles.table}>
@@ -57,6 +51,6 @@ export function AdminActivityPage() {
           />
         </>
       )}
-    </PageContainer>
+    </div>
   );
 }
