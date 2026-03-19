@@ -23,12 +23,12 @@ export function ForgotPasswordPage() {
       setSecretQuestion(q);
       setStep(2);
     } catch (err: unknown) {
-      const msg =
-        err && typeof err === "object" && "response" in err
-          ? (err as { response?: { data?: { error?: string } } }).response?.data?.error ??
-            "No account found with this email"
-          : "No account found with this email";
-      setError(msg);
+      let message = "No account found with this email";
+      if (err && typeof err === 'object' && 'response' in err) {
+        const responseData = (err as any).response?.data;
+        message = responseData?.message || message;
+      }
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -50,12 +50,12 @@ export function ForgotPasswordPage() {
       await authApi.resetPassword(email, secretAnswer, newPassword);
       navigate("/login", { replace: true, state: { message: "Password reset. You can now sign in." } });
     } catch (err: unknown) {
-      const msg =
-        err && typeof err === "object" && "response" in err
-          ? (err as { response?: { data?: { error?: string } } }).response?.data?.error ??
-            "Incorrect answer or failed to reset"
-          : "Incorrect answer or failed to reset";
-      setError(msg);
+      let message = "Incorrect answer or failed to reset";
+      if (err && typeof err === 'object' && 'response' in err) {
+        const responseData = (err as any).response?.data;
+        message = responseData?.message || message;
+      }
+      setError(message);
     } finally {
       setIsLoading(false);
     }

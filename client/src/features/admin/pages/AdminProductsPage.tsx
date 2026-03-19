@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   adminApi,
   type ProductForModeration,
@@ -17,6 +18,12 @@ export function AdminProductsPage() {
       initialStatus: "PENDING",
     });
 
+  const apiConfig = useMemo(() => ({
+    remove: adminApi.deleteProduct,
+    create: adminApi.createProduct,
+    update: adminApi.updateProduct,
+  }), []);
+
   const {
     isFormModalOpen,
     editingItem: editingProduct,
@@ -30,13 +37,7 @@ export function AdminProductsPage() {
     handleCloseDeleteModal,
     handleConfirmDelete: confirmDelete,
     handleSave: handleEntitySave,
-  } = useEntityManagement<ProductForModeration>({
-      // The list() is handled by useAdminTable, so we provide a dummy function
-      list: () => Promise.resolve([]),
-      remove: adminApi.deleteProduct,
-      create: adminApi.createProduct,
-      update: adminApi.updateProduct,
-    }, "product");
+  } = useEntityManagement<ProductForModeration>(apiConfig, "product");
 
   const renderSortArrow = (column: string) => {
     if (sortBy !== column) return null;
@@ -59,25 +60,8 @@ export function AdminProductsPage() {
   };
 
   const handleSave = (data: any) => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    formData.append("priceCents", String(Math.round(Number(data.price) * 100)));
-    formData.append("stock", String(data.stock));
-    formData.append("categoryId", data.categoryId);
-
-    if (data.images && data.images.length > 0) {
-      data.images.forEach((file: File) => {
-        formData.append("images", file);
-      });
-    }
-
-    if (data.imagesToRemove && data.imagesToRemove.length > 0) {
-      data.imagesToRemove.forEach((url: string) => {
-        formData.append("imagesToRemove[]", url);
-      });
-    }
-    return handleEntitySave(formData);
+    // ProductFormModal already builds the JSON payload for /api/products.
+    return handleEntitySave(data);
   };
 
   const handleConfirmDelete = async () => {

@@ -1,27 +1,23 @@
-import type { NextFunction, Request, Response } from "express";
-import type { z } from "zod";
+import { Request, Response, NextFunction } from "express";
+import { AnyZodObject } from "zod";
 
-type SchemaSource = "body" | "query" | "params";
+export type ValidationSource = "body" | "query" | "params";
 
 /**
- * Validates request data with Zod and attaches parsed result to req.
- * On failure returns 400 with flattened field errors.
+ * Middleware to validate request data against a Zod schema.
+ * @param schema The Zod schema to validate against.
+ * @param source The segment of the request to validate ('body', 'query', or 'params'). Defaults to 'body'.
  */
-export const validate = <T extends z.ZodType>(
-  schema: T,
-  source: SchemaSource = "body"
-) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    const raw = req[source];
-    const result = schema.safeParse(raw);
-    if (result.success) {
-      (req as Request & { [K: string]: z.infer<T> })[source] = result.data;
+export const validate = (schema: AnyZodObject, source: ValidationSource = "body") => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const parsed = schema.parse(req[source]);
+      // Overwrite the request property with the parsed/coerced result.
+      // This ensures that any Zod transformations (like string to number) are reflected in the controller.
+      (req as any)[source] = parsed;
       next();
-      return;
+    } catch (error) {
+      next(error);
     }
-    res.status(400).json({
-      error: "Validation failed",
-      details: result.error.flatten().fieldErrors
-    });
   };
 };

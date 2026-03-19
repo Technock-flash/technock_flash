@@ -1,45 +1,67 @@
-import type { NextFunction, Request, Response } from "express";
-import { ZodError } from "zod";
-import { AppError } from "../../../shared/errors/AppError";
+import { Request, Response, NextFunction } from 'express';
+import { AppError } from '../../../shared/errors/AppError';
+import { env } from '../../../config/env';
+import { ZodError } from 'zod';
+import { Prisma } from '@prisma/client';
+import { logger } from '../../../shared/utils/logger';
 
-function isPrismaError(err: unknown): err is { code: string; meta?: { target?: string[] } } {
-  return typeof err === "object" && err !== null && "code" in err;
-}
-
-// Global error handler: AppError, Zod, Prisma, unknown
 export const errorHandler = (
-  err: unknown,
-  _req: Request,
+  err: Error,
+  req: Request,
   res: Response,
-  _next: NextFunction
-): void => {
-  if (err instanceof AppError) {
-    res.status(err.statusCode).json({ error: err.message });
-    return;
-  }
-
-  if (err instanceof ZodError) {
-    res.status(400).json({
-      error: "Validation failed",
-      details: err.flatten().fieldErrors
+  next: NextFunction
+) => {
+  // 1. Log the error for internal debugging
+  try {
+    logger.error(`${req.method} ${req.path}`, {
+      error: err.message,
+      name: err.name,
+      body: env.nodeEnv === 'development' ? req.body : undefined,
+      stack: err.stack,
     });
-    return;
+  } catch (logError) {
+    // Fallback if logger fails (e.g. missing winston)
+    console.error('Logging failed:', logError, 'Original Error:', err);
   }
 
-  if (isPrismaError(err)) {
-    if (err.code === "P2002") {
-      const target = (err.meta?.target as string[] | undefined)?.[0] ?? "field";
-      res.status(409).json({ error: `Duplicate value for ${target}` });
-      return;
+  let statusCode = 500;
+  let message = 'Internal Server Error';
+  let details = undefined;
+
+  // 2. Handle specific error types
+  if (err instanceof AppError) {
+    statusCode = err.statusCode;
+    message = err.message;
+  } else if (err instanceof SyntaxError && 'status' in err && (err as any).status === 400) {
+    // Handle invalid JSON in request body
+    statusCode = 400;
+    message = 'Invalid JSON payload';
+  } else if (err instanceof ZodError) {
+    statusCode = 400;
+    message = 'Validation failed';
+    details = err.flatten().fieldErrors;
+  } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    // Handle Prisma unique constraint or not found errors
+    if (err.code === 'P2002') {
+      statusCode = 409;
+      message = 'A record with this value already exists';
+    } else if (err.code === 'P2025') {
+      statusCode = 404;
+      message = 'Record not found';
     }
-    if (err.code === "P2025") {
-      res.status(404).json({ error: "Record not found" });
-      return;
-    }
+  } else if (err instanceof Prisma.PrismaClientValidationError) {
+    statusCode = 400;
+    message = 'Invalid data provided to database client';
+  } else if (err.name === 'PrismaClientInitializationError' || err.name === 'PrismaClientConnectorError') {
+    statusCode = 503;
+    message = 'Database connection failed. Please try again later.';
   }
 
-  // eslint-disable-next-line no-console
-  console.error(err);
-  res.status(500).json({ error: "Internal server error" });
+  // 3. Send response
+  res.status(statusCode).json({
+    status: 'error',
+    message,
+    ...(details && { details }),
+    ...(env.nodeEnv === 'development' && { stack: err.stack }),
+  });
 };
-

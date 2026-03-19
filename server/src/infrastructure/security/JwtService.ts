@@ -10,13 +10,15 @@ export interface TokenPayload {
 export class JwtService {
   generateAccessToken(payload: TokenPayload): string {
     return jwt.sign(payload, env.jwt.accessSecret, {
-      expiresIn: env.jwt.accessExpiresIn
+      // Cast to the JWT library's expected expiresIn type
+      expiresIn: env.jwt.accessExpiresIn as any
     });
   }
 
   generateRefreshToken(payload: TokenPayload): string {
     return jwt.sign(payload, env.jwt.refreshSecret, {
-      expiresIn: env.jwt.refreshExpiresIn
+      // Cast to the JWT library's expected expiresIn type
+      expiresIn: env.jwt.refreshExpiresIn as any
     });
   }
 

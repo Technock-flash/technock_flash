@@ -46,6 +46,7 @@ export class PrismaProductRepository implements IProductRepository {
     inStock?: number;
     sku?: string;
     vendorId: string;
+    images?: string[];
   }): Promise<Product> {
     const slug = data.slug ?? slugify(data.name);
     const product = await prisma.product.create({
@@ -58,6 +59,7 @@ export class PrismaProductRepository implements IProductRepository {
         inStock: data.inStock ?? 0,
         sku: data.sku ?? null,
         vendorId: data.vendorId,
+        images: data.images ?? [],
         moderationStatus: "PENDING"
       }
     });
@@ -73,6 +75,7 @@ export class PrismaProductRepository implements IProductRepository {
     compareAtCents: number | null;
     inStock: number;
     sku: string | null;
+    images: string[];
     vendorId: string;
     isActive: boolean;
     createdAt: Date;
@@ -87,6 +90,7 @@ export class PrismaProductRepository implements IProductRepository {
       compareAtCents: raw.compareAtCents,
       inStock: raw.inStock,
       sku: raw.sku,
+      images: raw.images ?? [],
       vendorId: raw.vendorId,
       isActive: raw.isActive,
       createdAt: raw.createdAt,

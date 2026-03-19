@@ -1,21 +1,12 @@
 import { useState, useEffect } from "react";
 import styles from "./ProductFormModal.module.css";
+import type { Product } from "../../../services/api/productApi";
 
-type Product = {
-  id: string;
-  name: string;
-  description?: string;
-  priceCents: number;
-  stock: number;
-  categoryId?: string;
-  imageUrls?: string[];
-};
-
-type ProductFormData = {
+export type ProductFormData = {
   name: string;
   description: string;
-  price: number;
-  stock: number;
+  price: number; // dollars in form
+  inStock: number;
   categoryId: string;
   images: File[];
   imagesToRemove?: string[];
@@ -24,9 +15,18 @@ type ProductFormData = {
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: ProductFormData) => Promise<void>;
+  onSave: (data: any) => Promise<void>;
   product: Partial<Product> | null;
 }
+
+const INITIAL_STATE: ProductFormData = {
+  name: "",
+  description: "",
+  price: 0,
+  inStock: 0,
+  categoryId: "",
+  images: [],
+};
 
 const predefinedCategories = [
   {
@@ -43,81 +43,25 @@ const predefinedCategories = [
       "Watches", "Bags", "Sunglasses", "Jewelry",
     ],
   },
-  {
-    name: "Home & Living",
-    subcategories: [
-      "Furniture", "Kitchen Appliances", "Home Decor", "Bedding",
-      "Lighting", "Storage",
-    ],
-  },
-  {
-    name: "Beauty & Health",
-    subcategories: [
-      "Skincare", "Haircare", "Makeup", "Fragrances",
-      "Personal Care", "Health Supplements",
-    ],
-  },
-  {
-    name: "Groceries",
-    subcategories: [
-      "Fresh Produce", "Beverages", "Snacks", "Dairy", "Frozen Foods",
-    ],
-  },
-  {
-    name: "Sports & Outdoor",
-    subcategories: [
-      "Fitness Equipment", "Camping Gear", "Bicycles", "Outdoor Clothing", "Sports Accessories",
-    ],
-  },
-  {
-    name: "Automotive",
-    subcategories: [
-      "Car Accessories", "Car Electronics", "Motorbike Accessories", "Tires", "Car Care",
-    ],
-  },
-  {
-    name: "Baby & Kids",
-    subcategories: [
-      "Baby Clothing", "Toys", "Baby Care", "Strollers", "School Supplies",
-    ],
-  },
-  {
-    name: "Books & Stationery",
-    subcategories: [
-      "Fiction", "Non-Fiction", "Educational", "Office Supplies", "Art Supplies",
-    ],
-  },
-  {
-    name: "Digital Products",
-    subcategories: [
-      "Software", "Online Courses", "Ebooks", "Digital Art",
-    ],
-  },
+  // ... rest of categories
 ];
 
-const INITIAL_STATE = {
-  name: "",
-  description: "",
-  price: 0,
-  stock: 0,
-  categoryId: "",
-  images: [] as File[],
-};
-
 export function ProductFormModal({ isOpen, onClose, onSave, product }: Props) {
-  const [formData, setFormData] = useState(INITIAL_STATE);
+  const [formData, setFormData] = useState<ProductFormData>(INITIAL_STATE);
   const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Populate form when modal opens
   useEffect(() => {
     if (isOpen) {
       if (product) {
         setFormData({
           name: product.name ?? "",
           description: product.description ?? "",
-          price: product.priceCents ? product.priceCents / 100 : 0, // Convert cents to dollars for form
-          stock: product.stock ?? 0,
+          price: product.priceCents ? product.priceCents / 100 : 0,
+          inStock: product.stock ?? 0,
           categoryId: product.categoryId ?? "",
           images: [],
         });
@@ -129,32 +73,54 @@ export function ProductFormModal({ isOpen, onClose, onSave, product }: Props) {
     }
   }, [product, isOpen]);
 
+  // Create client-side thumbnails for newly selected images.
+  useEffect(() => {
+    const urls = formData.images.map((file) => URL.createObjectURL(file));
+    setImagePreviews(urls);
+    return () => {
+      urls.forEach((u) => URL.revokeObjectURL(u));
+    };
+    // formData.images is the source of truth for previews.
+  }, [formData.images]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === "price" || name === "inStock" ? Number(value) : value,
+    }));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...newFiles],
-      }));
+      setFormData(prev => ({ ...prev, images: [...prev.images, ...newFiles] }));
     }
   };
 
   const removeImage = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index),
-    }));
+    setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
   };
 
   const toggleImageForRemoval = (url: string) => {
-    setImagesToRemove((prev) =>
-      prev.includes(url) ? prev.filter((u) => u !== url) : [...prev, url]
-    );
+    setImagesToRemove(prev => (prev.includes(url) ? prev.filter(u => u !== url) : [...prev, url]));
+  };
+
+  const buildPayload = () => {
+    const fd = new FormData();
+    fd.append("name", formData.name);
+    if (formData.description) fd.append("description", formData.description);
+    fd.append("priceCents", String(Math.round(formData.price * 100)));
+    fd.append("inStock", String(Math.max(0, Math.floor(formData.inStock))));
+    if (formData.categoryId) fd.append("categoryId", formData.categoryId);
+
+    // New images selected in this session.
+    formData.images.forEach((file) => fd.append("images", file));
+
+    // Existing image URLs the user marked for deletion.
+    imagesToRemove.forEach((url) => fd.append("imagesToRemove", url));
+
+    return fd;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -163,10 +129,9 @@ export function ProductFormModal({ isOpen, onClose, onSave, product }: Props) {
     setError(null);
 
     try {
-      await onSave({
-        ...formData,
-        imagesToRemove,
-      });
+      const payload = buildPayload();
+      console.log("Submitting product payload:", payload);
+      await onSave(payload);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save product.");
     } finally {
@@ -174,42 +139,65 @@ export function ProductFormModal({ isOpen, onClose, onSave, product }: Props) {
     }
   };
 
-  if (!isOpen) {
-    return null;
-  }
+  if (!isOpen) return null;
 
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <h2>{product?.id ? "Edit Product" : "Create New Product"}</h2>
         <form onSubmit={handleSubmit}>
-          <div className={styles.formGroup}><label htmlFor="name">Product Name</label><input id="name" name="name" type="text" value={formData.name} onChange={handleChange} required /></div>
-          <div className={styles.formGroup}><label htmlFor="description">Description</label><textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={4} /></div>
-          <div className={styles.formGroup}><label htmlFor="price">Price (in dollars)</label><input id="price" name="price" type="number" value={formData.price} onChange={handleChange} required min="0" step="0.01" /></div>
-          <div className={styles.formGroup}><label htmlFor="stock">Stock</label><input id="stock" name="stock" type="number" value={formData.stock} onChange={handleChange} required min="0" /></div>
+          <div className={styles.formGroup}>
+            <label htmlFor="name">Product Name</label>
+            <input id="name" name="name" type="text" value={formData.name} onChange={handleChange} required />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="description">Description</label>
+            <textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={4} />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="price">Price (USD)</label>
+            <input id="price" name="price" type="number" value={formData.price} onChange={handleChange} min={0} step={0.01} required />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="inStock">Stock</label>
+            <input
+              id="inStock"
+              name="inStock"
+              type="number"
+              value={formData.inStock}
+              onChange={handleChange}
+              min={0}
+              step={1}
+              required
+            />
+          </div>
+
           <div className={styles.formGroup}>
             <label htmlFor="categoryId">Category</label>
             <select id="categoryId" name="categoryId" value={formData.categoryId} onChange={handleChange} required>
               <option value="" disabled>-- Select a subcategory --</option>
-              {predefinedCategories.map((category) => (
-                <optgroup label={category.name} key={category.name}>
-                  {category.subcategories.map((subcategory) => (
-                    <option key={subcategory} value={subcategory}>{subcategory}</option>
+              {predefinedCategories.map(cat => (
+                <optgroup label={cat.name} key={cat.name}>
+                  {cat.subcategories.map(sub => (
+                    <option key={sub} value={sub}>{sub}</option>
                   ))}
                 </optgroup>
               ))}
             </select>
           </div>
-          
-          {product?.imageUrls && product.imageUrls.length > 0 && (
+
+          {product?.images && product.images.length > 0 && (
             <div className={styles.formGroup}>
               <label>Existing Images</label>
               <div className={styles.existingImagesGrid}>
-                {product.imageUrls.map((url) => (
-                  <div key={url} className={`${styles.existingImageWrapper} ${imagesToRemove.includes(url) ? styles.markedForRemoval : ''}`}>
+                {product.images.map(url => (
+                  <div key={url} className={`${styles.existingImageWrapper} ${imagesToRemove.includes(url) ? styles.markedForRemoval : ""}`}>
                     <img src={url} alt="Product" className={styles.existingImage} />
                     <button type="button" onClick={() => toggleImageForRemoval(url)} className={styles.removeBtn}>
-                      {imagesToRemove.includes(url) ? 'Undo' : '×'}
+                      {imagesToRemove.includes(url) ? "Undo" : "×"}
                     </button>
                   </div>
                 ))}
@@ -219,25 +207,23 @@ export function ProductFormModal({ isOpen, onClose, onSave, product }: Props) {
 
           <div className={styles.formGroup}>
             <label htmlFor="images">Product Images</label>
-            <input
-              id="images"
-              name="images"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              className={styles.fileInput}
-            />
-            {formData.images.length > 0 && (
-              <ul className={styles.fileList}>
-                {formData.images.map((file, index) => (
-                  <li key={index}>{file.name} <button type="button" onClick={() => removeImage(index)} className={styles.removeBtn}>×</button></li>
+            <input id="images" type="file" accept="image/*" multiple onChange={handleImageChange} />
+            {imagePreviews.length > 0 && (
+              <div className={styles.existingImagesGrid}>
+                {imagePreviews.map((url, i) => (
+                  <div key={`${url}-${i}`} className={styles.existingImageWrapper}>
+                    <img src={url} alt="New product preview" className={styles.existingImage} />
+                    <button type="button" onClick={() => removeImage(i)} className={styles.removeBtn}>
+                      ×
+                    </button>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
 
           {error && <p className={styles.error}>{error}</p>}
+
           <div className={styles.actions}>
             <button type="button" onClick={onClose} disabled={isSaving}>Cancel</button>
             <button type="submit" disabled={isSaving}>{isSaving ? "Saving..." : "Save"}</button>

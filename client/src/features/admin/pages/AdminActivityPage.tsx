@@ -30,6 +30,9 @@ export function AdminActivityPage() {
                 <th>Action</th>
                 <th>Entity</th>
                 <th>Entity ID</th>
+                <th>User ID</th>
+                <th>IP</th>
+                <th>Details</th>
               </tr>
             </thead>
             <tbody>
@@ -39,6 +42,17 @@ export function AdminActivityPage() {
                   <td>{log.action}</td>
                   <td>{log.entity}</td>
                   <td>{log.entityId ?? "-"}</td>
+                  <td>{log.userId ?? "System"}</td>
+                  <td>{log.ipAddress ?? "-"}</td>
+                  <td>
+                    {log.metadata ? (
+                      <pre style={{ margin: 0, fontSize: "0.85em", whiteSpace: "pre-wrap" }}>
+                        {JSON.stringify(log.metadata, null, 2)}
+                      </pre>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

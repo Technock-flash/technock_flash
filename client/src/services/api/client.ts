@@ -6,7 +6,6 @@ import { setAccessToken } from "../../core/auth/authSlice";
 export const apiClient = axios.create({
   baseURL: `${env.apiUrl}/api`,
   withCredentials: true,
-  headers: { "Content-Type": "application/json" },
 });
 
 let refreshPromise: Promise<string> | null = null;
@@ -42,6 +41,14 @@ apiClient.interceptors.request.use((config) => {
   if (token && !isRefreshRequest) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // Only set JSON content-type for non-FormData bodies.
+  // Axios will set the correct multipart boundary for FormData automatically.
+  const hasBody = config.data !== undefined && config.data !== null;
+  const isFormData = typeof FormData !== "undefined" && config.data instanceof FormData;
+  if (hasBody && !isFormData) {
+    config.headers["Content-Type"] = "application/json";
+  }
   return config;
 });
 
@@ -52,7 +59,8 @@ apiClient.interceptors.response.use(
     if (
       err.response?.status === 401 &&
       !original._retry &&
-      !original.url?.includes("/auth/")
+      // Do not retry for the refresh endpoint itself. Use includes to be safe against baseURLs.
+      !original.url?.includes("/auth/refresh")
     ) {
       original._retry = true;
       try {

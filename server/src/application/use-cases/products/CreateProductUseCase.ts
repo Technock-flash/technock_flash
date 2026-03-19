@@ -12,6 +12,7 @@ export interface CreateProductInput {
   inStock?: number;
   sku?: string;
   vendorOwnerId: string;
+  images?: string[];
 }
 
 export class CreateProductUseCase {
@@ -38,7 +39,8 @@ export class CreateProductUseCase {
       compareAtCents: input.compareAtCents,
       inStock: input.inStock,
       sku: input.sku,
-      vendorId: vendor.id
+      vendorId: vendor.id,
+      images: input.images ?? []
     });
 
     if (this.productListCache) {

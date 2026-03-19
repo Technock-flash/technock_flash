@@ -135,11 +135,13 @@ model Product {
   compareAtCents    Int?
   inStock           Int                    @default(0)
   sku               String?
+  images            String[]               @default([])
   vendorId          String
   isActive          Boolean                @default(true)
   moderationStatus  ProductModerationStatus @default(APPROVED)
   moderatedAt       DateTime?
   moderatedBy       String?
+  deletedAt         DateTime?
   createdAt         DateTime               @default(now())
   updatedAt         DateTime               @updatedAt
 

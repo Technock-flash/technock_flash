@@ -1,12 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { vendorApi, type VendorProduct } from "../services/api/vendorApi";
 import { formatPrice } from "../shared/utils/format";
 import { ProductFormModal } from "../features/products/components/ProductFormModal";
 import { ConfirmationModal } from "../components/ConfirmationModal";
-import { useEntityManagement } from "./useEntityManagement";
+import { useEntityManagement } from "../useEntityManagement";
 import styles from "../features/admin/pages/VendorTable.module.css";
 
 export function ProductManagement() {
+  const apiConfig = useMemo(() => ({
+    list: vendorApi.getMyProducts,
+    remove: vendorApi.deleteProduct,
+    create: vendorApi.createProduct,
+    update: vendorApi.updateProduct,
+  }), []);
+
   const {
     items: products,
     loading,
@@ -14,6 +21,7 @@ export function ProductManagement() {
     refetch,
     isFormModalOpen,
     editingItem: editingProduct,
+    isSaving,
     isDeleting,
     isDeleteModalOpen,
     deletingItem: deletingProduct,
@@ -25,37 +33,12 @@ export function ProductManagement() {
     handleConfirmDelete,
     handleSave: handleProductSave,
   } = useEntityManagement<VendorProduct>(
-    {
-      list: vendorApi.getMyProducts,
-      remove: vendorApi.deleteProduct,
-      create: vendorApi.createProduct,
-      update: vendorApi.updateProduct,
-    },
-    "product"
+    apiConfig, "product"
   );
 
   const handleSave = (data: any) => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    formData.append("priceCents", String(Math.round(Number(data.price) * 100)));
-    formData.append("stock", String(data.stock));
-    formData.append("categoryId", data.categoryId);
-
-    if (data.images && data.images.length > 0) {
-      data.images.forEach((file: File) => {
-        formData.append("images", file);
-      });
-    }
-
-    if (data.imagesToRemove && data.imagesToRemove.length > 0) {
-      data.imagesToRemove.forEach((url: string) => {
-        formData.append("imagesToRemove[]", url);
-      });
-    }
-
-    // The hook's handleSave will close modal and refetch on success
-    return handleProductSave(formData);
+    // ProductFormModal already builds the JSON payload the backend expects.
+    return handleProductSave(data);
   };
 
   return (
@@ -118,6 +101,7 @@ export function ProductManagement() {
         onClose={handleCloseFormModal}
         onSave={handleSave}
         product={editingProduct}
+        isSaving={isSaving}
       />
 
       <ConfirmationModal

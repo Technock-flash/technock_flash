@@ -1,14 +1,19 @@
-export interface Product {
+export type ModerationStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+export class Product {
   id: string;
   name: string;
-  slug: string;
-  description: string | null;
+  description: string;
   priceCents: number;
-  compareAtCents: number | null;
   inStock: number;
-  sku: string | null;
+  images: string[];
+  categoryId: string;
   vendorId: string;
-  isActive: boolean;
+  moderationStatus: ModerationStatus;
+  moderationComment?: string | null;
+  isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;
+
+  // You can add business logic methods here, e.g., canPublish()
 }

@@ -11,7 +11,7 @@ export const createAuthRoutes = (
 
   router.use(authRateLimit);
 
-  router.get("/secret-questions", asyncHandler(controller.secretQuestions));
+  router.get("/secret-questions", controller.secretQuestions);
   router.post("/login", asyncHandler(controller.login));
   router.post("/register", asyncHandler(controller.register));
   router.post("/refresh", asyncHandler(controller.refresh));

@@ -1,66 +1,158 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
-interface Entity {
-  id: string;
-  [key: string]: any;
-}
-
-interface Api<T extends Entity> {
+interface ApiConfig<T> {
   list: () => Promise<T[]>;
+  create: (data: any) => Promise<T>;
+  update: (id: string, data: any) => Promise<T>;
   remove: (id: string) => Promise<void>;
-  create: (data: Partial<T>) => Promise<T>;
-  update: (id: string, data: Partial<T>) => Promise<T>;
 }
 
-export const useEntityManagement = <T extends Entity>(api: Api<T>) => {
-  const [items, setItems] = useState<T[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [itemToDelete, setItemToDelete] = useState<T | null>(null);
+interface UseEntityManagementReturn<T> {
+  items: T[];
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+  isFormModalOpen: boolean;
+  editingItem: T | null;
+  isSaving: boolean;
+  isDeleting: boolean;
+  isDeleteModalOpen: boolean;
+  deletingItem: T | null;
+  handleOpenCreate: () => void;
+  handleOpenEdit: (item: T) => void;
+  handleCloseFormModal: () => void;
+  handleOpenDelete: (item: T) => void;
+  handleCloseDeleteModal: () => void;
+  handleConfirmDelete: () => Promise<void>;
+  handleSave: (data: any) => Promise<void>;
+}
 
-  const fetchItems = useCallback(async () => {
+export function useEntityManagement<T extends { id: string }>(
+  apiConfig: ApiConfig<T>,
+  entityName: string = "item"
+): UseEntityManagementReturn<T> {
+  const [items, setItems] = useState<T[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<T | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingItem, setDeletingItem] = useState<T | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      const data = await api.list();
+      const data = await apiConfig.list();
       setItems(data);
-      setError(null);
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
+      setError(err.message || `Failed to fetch ${entityName}s`);
     } finally {
       setLoading(false);
     }
-  }, [api]);
+  }, [apiConfig, entityName]);
 
   useEffect(() => {
-    fetchItems();
-  }, [fetchItems]);
+    fetchData();
+  }, [fetchData]);
+
+  const handleOpenCreate = () => {
+    setEditingItem(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleOpenEdit = (item: T) => {
+    setEditingItem(item);
+    setIsFormModalOpen(true);
+  };
+
+  const handleCloseFormModal = () => {
+    setIsFormModalOpen(false);
+    setEditingItem(null);
+  };
+
+  const handleSave = async (data: any) => {
+    setIsSaving(true);
+    setError(null);
+    try {
+      if (editingItem) {
+        const updatedItem = await apiConfig.update(editingItem.id, data);
+        setItems((prevItems) =>
+          prevItems.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+        );
+      } else {
+        const newItem = await apiConfig.create(data);
+        setItems((prevItems) => [...prevItems, newItem]);
+      }
+      handleCloseFormModal();
+    } catch (err: any) {
+      setError(`Failed to save ${entityName}.`);
+      console.error(err);
+      // Do not close modal on error, so user can retry.
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleOpenDelete = (item: T) => {
-    setItemToDelete(item);
+    setDeletingItem(item);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setDeletingItem(null);
   };
 
   const handleConfirmDelete = async () => {
-    if (!itemToDelete) return;
-    const originalItems = items;
-    setItems(prev => prev.filter(i => i.id !== itemToDelete.id)); // Optimistic update
+    if (!deletingItem) return;
+
+    setIsDeleting(true);
+    const originalItems = [...items];
+
+    // Optimistically update the UI
+    setItems(items.filter((item) => item.id !== deletingItem.id));
+    handleCloseDeleteModal();
+
     try {
-      await api.remove(itemToDelete.id);
+      await apiConfig.remove(deletingItem.id);
     } catch (err: any) {
-      setError(err.message || 'Failed to delete');
-      setItems(originalItems); // Rollback
+      // If the item is not found (404), it's already deleted. Do not revert.
+      if (err.response?.status === 404) {
+        return;
+      }
+
+      // On error, revert the state
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || "Unknown error";
+      setError(`Failed to delete ${entityName}: ${errorMessage}. The item has been restored.`);
+      setItems(originalItems);
+      console.error(err);
     } finally {
-      setItemToDelete(null);
+      setIsDeleting(false);
     }
   };
 
-  const handleSave = async (data: Partial<T>, id?: string) => {
-    try {
-      id ? await api.update(id, data) : await api.create(data);
-      await fetchItems(); // Refetch
-    } catch (err: any) {
-      setError(err.message || 'Failed to save');
-    }
+  return {
+    items,
+    loading,
+    error,
+    refetch: fetchData,
+    isFormModalOpen,
+    editingItem,
+    isSaving,
+    isDeleting,
+    isDeleteModalOpen,
+    deletingItem,
+    handleOpenCreate,
+    handleOpenEdit,
+    handleCloseFormModal,
+    handleOpenDelete,
+    handleCloseDeleteModal,
+    handleConfirmDelete,
+    handleSave,
   };
-
-  return { items, loading, error, handleOpenDelete, handleConfirmDelete, handleSave };
-};
+}

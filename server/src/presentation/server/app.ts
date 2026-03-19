@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import cookieParser from "cookie-parser";
+import path from "path";
 import { env } from "../../config/env";
 import { errorHandler } from "../http/middlewares/errorHandler";
 import {
@@ -31,6 +32,8 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
+// Serve uploaded images
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Health check
 app.get("/health", (_req, res) => {

@@ -1,7 +1,11 @@
 import type { Request, Response } from "express";
+import type { Prisma } from "@prisma/client";
 import type { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { prisma } from "../../../infrastructure/database/prismaClient";
-import { AdminAnalyticsService, type RevenuePeriod } from "../../../application/services/AdminAnalyticsService";
+import {
+  AdminAnalyticsService,
+  type RevenuePeriod
+} from "../../../application/services/AdminAnalyticsService";
 
 const analyticsService = new AdminAnalyticsService();
 
@@ -306,7 +310,7 @@ export class AdminController {
     entity: string,
     entityId: string | undefined,
     userId: string | undefined,
-    metadata?: Record<string, unknown>
+    metadata?: Prisma.InputJsonValue
   ): Promise<void> {
     await prisma.activityLog.create({
       data: { action, entity, entityId, userId, metadata: metadata ?? undefined },

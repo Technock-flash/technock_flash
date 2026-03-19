@@ -2,6 +2,33 @@
 
 Multi-vendor marketplace with React frontend and Node.js backend.
 
+## Project Overview
+
+ZimMarket is a modern multi-vendor e-commerce platform designed for scalability and ease of management. It features a robust role-based access control system and a streamlined moderation workflow.
+
+### Tech Stack
+
+-   **Frontend:** React (TypeScript), Redux Toolkit (State Management), React Router (Lazy Loading).
+-   **Backend:** Node.js, Prisma ORM (PostgreSQL).
+-   **Infrastructure:** Redis (Caching & Session Management), Docker.
+
+### Key Features
+
+-   **Role-Based Access Control:**
+    -   **Customers:** Browse products, manage wishlists, and place orders.
+    -   **Vendors:** Manage product listings and track store performance via a dedicated dashboard.
+    -   **Admins:** Oversee the platform, moderate products/vendors, handle refunds, and manage CMS content.
+-   **Product Moderation:** A gatekeeper workflow where admin approval is required for vendor products to go live.
+-   **Robust Security:** JWT-based authentication with refresh token rotation and HTTP-only cookies.
+-   **CMS & Categories:** Dynamic management of site categories and static content pages.
+
+### Architecture & Patterns
+
+-   **Centralized Routing:** Located in `src/routes/index.tsx`, using `lazy` loading for performance optimization.
+-   **Reusable Logic:** Standardized CRUD operations across admin and vendor panels using custom hooks like `useEntityManagement`.
+-   **State Hydration:** Automatic authentication state recovery on page reload.
+-   **Optimistic UI:** UI updates are performed optimistically during deletions to ensure a snappy user experience.
+
 ## Prerequisites
 
 - **Docker Desktop** — [Download](https://www.docker.com/products/docker-desktop) — must be installed and running
@@ -27,7 +54,7 @@ cp .env.example .env
 # Edit .env: set JWT secrets, and add:
 # USE_IN_MEMORY_CACHE=false
 # (so the server uses Redis instead of in-memory cache)
-npm install
+npm install && npm install winston
 npx prisma generate
 npx prisma migrate dev
 npm run dev

@@ -7,6 +7,7 @@ import { MemoryProductListCache } from "../infrastructure/cache/MemoryProductLis
 import { MemoryVerificationTokenStore } from "../infrastructure/cache/MemoryVerificationTokenStore";
 import { MemoryRateLimitStore } from "../infrastructure/cache/MemoryRateLimitStore";
 import { JwtService } from "../infrastructure/security/JwtService";
+import { LocalFileUploader } from "../presentation/http/middlewares/LocalFileUploader";
 import { PasswordHasher } from "../infrastructure/security/PasswordHasher";
 import { StubEmailSender } from "../infrastructure/email/StubEmailSender";
 import { LoginUseCase } from "../application/use-cases/auth/LoginUseCase";
@@ -55,6 +56,7 @@ const rateLimitStore = useMemory
 const jwtService = new JwtService();
 const passwordHasher = new PasswordHasher();
 const emailSender = new StubEmailSender();
+const fileUploader = new LocalFileUploader();
 
 // Application
 const loginUseCase = new LoginUseCase(userRepo, tokenStore, passwordHasher, jwtService);
@@ -104,10 +106,12 @@ const authController = new AuthController(
   forgotPasswordUseCase,
   resetPasswordUseCase
 );
+// ProductController is used by the /api/products routes.
+// It should receive the CreateProductUseCase as its first dependency.
 const productController = new ProductController(
-  listProductsUseCase,
-  getProductUseCase,
-  createProductUseCase
+  createProductUseCase,
+  listProductsUseCase as any,
+  fileUploader
 );
 
 export const authRoutes = createAuthRoutes(authController, authRateLimit);

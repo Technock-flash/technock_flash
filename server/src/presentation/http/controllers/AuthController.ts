@@ -11,12 +11,12 @@ import { SECRET_QUESTIONS } from "../../../shared/constants/secretQuestions";
 import { setRefreshTokenCookie, clearRefreshTokenCookie, getRefreshTokenFromCookie } from "../cookieUtils";
 import { z } from "zod";
 
-const loginSchema = z.object({
+export const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1)
 });
 
-const registerSchema = z.object({
+export const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   firstName: z.string().min(1),
@@ -30,18 +30,22 @@ const registerSchema = z.object({
   secretAnswer: z.string().min(1)
 });
 
-const resendVerificationSchema = z.object({
+export const resendVerificationSchema = z.object({
   email: z.string().email()
 });
 
-const forgotPasswordSchema = z.object({
+export const forgotPasswordSchema = z.object({
   email: z.string().email()
 });
 
-const resetPasswordSchema = z.object({
+export const resetPasswordSchema = z.object({
   email: z.string().email(),
   secretAnswer: z.string().min(1),
   newPassword: z.string().min(8)
+});
+
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1)
 });
 
 export class AuthController {
@@ -57,25 +61,13 @@ export class AuthController {
   ) {}
 
   login = async (req: Request, res: Response): Promise<void> => {
-    const parsed = loginSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten().fieldErrors });
-      return;
-    }
-
-    const result = await this.loginUseCase.execute(parsed.data);
+    const result = await this.loginUseCase.execute(req.body);
     setRefreshTokenCookie(res, result.refreshToken);
     res.json({ accessToken: result.accessToken, user: result.user });
   };
 
   register = async (req: Request, res: Response): Promise<void> => {
-    const parsed = registerSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten().fieldErrors });
-      return;
-    }
-
-    const result = await this.registerUseCase.execute(parsed.data);
+    const result = await this.registerUseCase.execute(req.body);
     setRefreshTokenCookie(res, result.refreshToken);
     res.status(201).json({
       accessToken: result.accessToken,
@@ -87,7 +79,13 @@ export class AuthController {
   refresh = async (req: Request, res: Response): Promise<void> => {
     const token = getRefreshTokenFromCookie(req) ?? req.body?.refreshToken;
     if (!token) {
-      res.status(400).json({ error: "Refresh token required" });
+      // Use 403 Forbidden. A 401 on the refresh endpoint can cause client-side
+      // interceptor loops if not handled carefully. 403 clearly indicates
+      // that authentication was attempted (with a cookie) but failed.
+      res.status(403).json({
+        status: 'error', 
+        message: "Session expired or refresh token is missing."
+      });
       return;
     }
 
@@ -106,46 +104,26 @@ export class AuthController {
   };
 
   verifyEmail = async (req: Request, res: Response): Promise<void> => {
-    const token = (req.query.token ?? req.body?.token) as string | undefined;
-    if (!token) {
-      res.status(400).json({ error: "Verification token required" });
-      return;
-    }
+    // Token is now guaranteed by the validate middleware
+    const token = (req.query.token || req.body.token) as string;
     const { email } = await this.verifyEmailUseCase.execute(token);
     res.json({ message: "Email verified", email });
   };
 
   resendVerification = async (req: Request, res: Response): Promise<void> => {
-    const parsed = resendVerificationSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten().fieldErrors });
-      return;
-    }
-    await this.resendVerificationUseCase.execute(parsed.data.email);
+    await this.resendVerificationUseCase.execute(req.body.email);
     res.json({ message: "If the email is registered and unverified, a new link was sent." });
   };
 
   forgotPassword = async (req: Request, res: Response): Promise<void> => {
-    const parsed = forgotPasswordSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten().fieldErrors });
-      return;
-    }
-    const result = await this.forgotPasswordUseCase.execute(parsed.data.email);
-    if (!result) {
-      res.status(404).json({ error: "No account found with this email" });
-      return;
-    }
-    res.json(result);
+    const result = await this.forgotPasswordUseCase.execute(req.body.email);
+    // If result is null, the use case should ideally throw an AppError(404), 
+    // but for now we'll handle it consistently.
+    res.json(result || { message: "If that email exists, a reset link has been sent." });
   };
 
   resetPassword = async (req: Request, res: Response): Promise<void> => {
-    const parsed = resetPasswordSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten().fieldErrors });
-      return;
-    }
-    await this.resetPasswordUseCase.execute(parsed.data);
+    await this.resetPasswordUseCase.execute(req.body);
     res.json({ message: "Password reset successfully" });
   };
 

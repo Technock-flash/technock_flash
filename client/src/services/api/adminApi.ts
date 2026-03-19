@@ -1,4 +1,5 @@
 import { apiClient } from "./client";
+import { createProduct, updateProduct, deleteProduct } from "./products";
 
 export interface AdminStats {
   users: number;
@@ -71,6 +72,8 @@ export interface ActivityLog {
   entityId: string | null;
   userId: string | null;
   createdAt: string;
+  metadata?: any;
+  ipAddress?: string | null;
 }
 
 export const adminApi = {
@@ -129,6 +132,10 @@ export const adminApi = {
     const { data } = await apiClient.post(`/admin/products/${id}/reject`);
     return data;
   },
+
+  createProduct,
+  updateProduct,
+  deleteProduct,
 
   listUsers: async (params?: { page?: number; limit?: number }) => {
     const { data } = await apiClient.get<{
