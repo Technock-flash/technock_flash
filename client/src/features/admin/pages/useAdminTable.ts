@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useDebounce } from "../../../hooks/useDebounce";
+import { useDebounce } from "./useDebounce";
 
 interface PaginatedResponse<T> {
   items: T[];
@@ -37,7 +37,7 @@ export function useAdminTable<T, F extends string = string>(
   const debouncedSearch = useDebounce(search, 500);
   const [error, setError] = useState<string | null>(null);
 
-  const handleStatusChange = useCallback((newStatus: F) => {
+  const handleStatusChange = useCallback((newStatus: F | undefined) => {
     setStatus(newStatus);
     setPage(1); // Reset page when filter changes
   }, []);

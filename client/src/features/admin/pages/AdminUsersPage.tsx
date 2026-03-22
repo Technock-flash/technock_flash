@@ -1,9 +1,9 @@
 import { adminApi, type AdminUser } from "../../../services/api/adminApi";
 import { Pagination } from "../../../shared/ui/Pagination";
-import { useAdminTable } from "../hooks/useAdminTable";
+import { useAdminTable } from "./useAdminTable";
 import { useEntityManagement } from "../../../shared/hooks/useEntityManagement";
 import styles from "./AdminTable.module.css";
-import { UserFormModal } from "../components/UserFormModal";
+import { UserFormModal } from "./UserFormModal";
 
 export function AdminUsersPage() {
   const { items, total, page, loading, error, search, sortBy, sortOrder, setPage, setSearch, onSort, refetch } =
@@ -13,12 +13,18 @@ export function AdminUsersPage() {
     isFormModalOpen,
     handleOpenCreate,
     handleCloseFormModal,
-    handleSave,
+    handleSave: _handleSave,
   } = useEntityManagement<AdminUser>({
-    // list and remove are not needed here as useAdminTable handles it
+    // list and remove are handled by useAdminTable above
     create: adminApi.createUser,
-    // update is handled by role change inline
+    // update is handled inline via role-change select
   }, "user");
+
+  // After creating a user, also refresh the paginated list
+  const handleSave = async (data: any) => {
+    await _handleSave(data);
+    refetch();
+  };
 
   const renderSortArrow = (column: string) => {
     if (sortBy !== column) return null;

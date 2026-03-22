@@ -65,6 +65,29 @@ export interface CmsPage {
   isPublished: boolean;
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  parentId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminOrder {
+  id: string;
+  orderNumber: string;
+  customerId: string;
+  customer: { email: string };
+  status: string;
+  subtotalCents: number;
+  totalCents: number;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ActivityLog {
   id: string;
   action: string;
@@ -206,6 +229,66 @@ export const adminApi = {
       page: number;
       limit: number;
     }>("/admin/activity-logs", { params });
+    return data;
+  },
+
+  // ── Category CRUD ──────────────────────────────────────────────────────────
+  listCategories: async (): Promise<Category[]> => {
+    const { data } = await apiClient.get<Category[]>("/admin/categories");
+    return data;
+  },
+
+  createCategory: async (body: {
+    name: string;
+    slug: string;
+    description?: string | null;
+    parentId?: string | null;
+  }): Promise<Category> => {
+    const { data } = await apiClient.post<Category>("/admin/categories", body);
+    return data;
+  },
+
+  updateCategory: async (
+    id: string,
+    body: { name?: string; slug?: string; description?: string | null; parentId?: string | null }
+  ): Promise<Category> => {
+    const { data } = await apiClient.patch<Category>(`/admin/categories/${id}`, body);
+    return data;
+  },
+
+  deleteCategory: async (id: string): Promise<void> => {
+    await apiClient.delete(`/admin/categories/${id}`);
+  },
+
+  // ── Admin Orders ───────────────────────────────────────────────────────────
+  listAllOrders: async (params?: {
+    status?: string;
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  }) => {
+    const { data } = await apiClient.get<{
+      items: AdminOrder[];
+      total: number;
+      page: number;
+      limit: number;
+    }>("/admin/orders", { params });
+    return data;
+  },
+
+  updateOrderStatus: async (id: string, status: string): Promise<AdminOrder> => {
+    const { data } = await apiClient.patch<AdminOrder>(`/admin/orders/${id}/status`, { status });
+    return data;
+  },
+
+  // ── Create User ────────────────────────────────────────────────────────────
+  createUser: async (body: {
+    email: string;
+    password: string;
+    role?: string;
+  }): Promise<AdminUser> => {
+    const { data } = await apiClient.post<AdminUser>("/admin/users", body);
     return data;
   },
 };

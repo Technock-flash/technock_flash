@@ -3,7 +3,7 @@ import {
   type VendorWithOwner,
 } from "../../../services/api/adminApi";
 import { Pagination } from "../../../shared/ui/Pagination";
-import { useAdminTable } from "../hooks/useAdminTable";
+import { useAdminTable } from "./useAdminTable";
 import styles from "./AdminTable.module.css";
 
 export function AdminVendorsPage() {

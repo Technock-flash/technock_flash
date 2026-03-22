@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
-import { adminApi, type Category } from "../../../services/api/adminApi";
-import { CategoryFormModal } from "../components/CategoryFormModal";
-import { ConfirmationModal } from "../../../shared/ui/ConfirmationModal";
-import styles from "./AdminTable.module.css";
+import { adminApi, type Category } from "../services/api/adminApi";
+import { CategoryFormModal } from "./CategoryFormModal";
+import { ConfirmationModal } from "./ConfirmationModal";
+import styles from "../features/admin/pages/AdminTable.module.css";
 
 export function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);

@@ -1,5 +1,5 @@
 import { adminApi, type CmsPage } from "../../../services/api/adminApi";
-import { CmsFormModal } from "../components/CmsFormModal";
+import { CmsFormModal } from "./CmsFormModal";
 import { ConfirmationModal } from "../../../shared/ui/ConfirmationModal";
 import { useEntityManagement } from "../../../shared/hooks/useEntityManagement";
 import styles from "./AdminTable.module.css";

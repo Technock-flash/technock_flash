@@ -1,94 +1,85 @@
-import { useState } from "react";
-import { formatPrice } from "../../../shared/utils/format";
-import { RevenueChart } from "../components/RevenueChart";
-import { useAdminStats } from "../hooks/useAdminStats";
-import { useAdminAnalytics } from "../hooks/useAdminAnalytics";
-import styles from "./AdminDashboardPage.module.css";
+import React, { useState } from 'react';
+import { useAdminStats } from './useAdminStats';
+import { useAdminAnalytics } from './useAdminAnalytics';
+import type { Period } from './useAdminAnalytics';
+import { RevenueChart } from '../components/RevenueChart';
+import { formatPrice } from '../../../shared/utils/format';
+import styles from './AdminDashboardPage.module.css';
 
-type Period = "day" | "week" | "month";
-
-export function AdminDashboardPage() {
-  const [period, setPeriod] = useState<Period>("month");
+export default function AdminDashboardPage() {
+  const [period, setPeriod] = useState<Period>('week');
   const { stats, loading: statsLoading, error: statsError } = useAdminStats();
-  const {
-    analytics,
-    loading: analyticsLoading,
-    error: analyticsError,
-  } = useAdminAnalytics(period);
+  const { analytics, loading: analyticsLoading, error: analyticsError } = useAdminAnalytics(period);
 
-  if (statsError) {
-    return (
-      <div>
-        <h1>Admin Dashboard</h1>
-        <p style={{ color: "#e74c3c" }}>{statsError}</p>
-      </div>
-    );
-  }
+  const isLoading = statsLoading || analyticsLoading;
+  const error = statsError || analyticsError;
 
-  if (statsLoading || !stats) {
-    return <div>Loading...</div>;
-  }
+  if (isLoading) return <div className="p-8">Loading dashboard...</div>;
+  if (error) return <div className="p-8 text-red-500">Error: {error}</div>;
 
   return (
-    <div>
-      <h1>Admin Dashboard</h1>
-      <div className={styles.periodTabs}>
-        {(["day", "week", "month"] as const).map((p) => (
-          <button
-            key={p}
-            type="button"
-            className={period === p ? styles.active : ""}
-            onClick={() => setPeriod(p)}
-          >
-            {p === "day" ? "Today" : p === "week" ? "7 days" : "30 days"}
-          </button>
-        ))}
-      </div>
-
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+      
+      {/* Stats Cards */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
-          <span className={styles.statLabel}>Total users</span>
-          <span className={styles.statValue}>{stats.users}</span>
+          <span className={styles.statLabel}>Total Users</span>
+          <span className={styles.statValue}>{stats?.users || 0}</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Vendors</span>
-          <span className={styles.statValue}>{stats.vendors}</span>
+          <span className={styles.statValue}>{stats?.vendors || 0}</span>
         </div>
         <div className={styles.statCard}>
-          <span className={styles.statLabel}>Total orders</span>
-          <span className={styles.statValue}>{stats.orders}</span>
+          <span className={styles.statLabel}>Total Orders</span>
+          <span className={styles.statValue}>{stats?.orders || 0}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Total Revenue</span>
+          <span className={styles.statValue}>
+            {formatPrice(analytics?.totalRevenueCents || 0)}
+          </span>
         </div>
       </div>
 
-      {analyticsLoading && <p>Loading analytics...</p>}
-      {analyticsError && <p style={{ color: "#e74c3c" }}>{analyticsError}</p>}
-      {analytics && (
-        <>
-          <div className={styles.metricsGrid}>
-            <div className={styles.metricCard}>
-              <span className={styles.metricLabel}>Revenue</span>
-              <span className={styles.metricValue}>
-                {formatPrice(analytics.totalRevenueCents)}
-              </span>
-            </div>
-            <div className={styles.metricCard}>
-              <span className={styles.metricLabel}>Conversion rate</span>
-              <span className={styles.metricValue}>{analytics.conversionRate}%</span>
-            </div>
-            <div className={styles.metricCard}>
-              <span className={styles.metricLabel}>Avg order value</span>
-              <span className={styles.metricValue}>
-                {formatPrice(analytics.avgOrderValueCents)}
-              </span>
-            </div>
+      {/* Analytics Section */}
+      <div className={styles.chartSection}>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className={styles.chartTitle}>Revenue Analytics</h2>
+          <div className={styles.periodTabs}>
+            {(['day', 'week', 'month'] as Period[]).map((p) => (
+              <button
+                key={p}
+                className={period === p ? styles.active : ''}
+                onClick={() => setPeriod(p)}
+              >
+                {p.charAt(0).toUpperCase() + p.slice(1)}
+              </button>
+            ))}
           </div>
+        </div>
+        
+        {analytics?.revenueByPeriod && (
+          <RevenueChart data={analytics.revenueByPeriod} />
+        )}
+      </div>
 
-          <div className={styles.chartSection}>
-            <h3 className={styles.chartTitle}>Revenue over time</h3>
-            <RevenueChart data={analytics.revenueByPeriod} />
-          </div>
-        </>
-      )}
+      {/* Additional Metrics */}
+      <div className={styles.metricsGrid}>
+        <div className={styles.metricCard}>
+          <span className={styles.metricLabel}>Conversion Rate</span>
+          <span className={styles.metricValue}>
+            {(analytics?.conversionRate || 0).toFixed(2)}%
+          </span>
+        </div>
+        <div className={styles.metricCard}>
+          <span className={styles.metricLabel}>Avg Order Value</span>
+          <span className={styles.metricValue}>
+            {formatPrice(analytics?.avgOrderValueCents || 0)}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

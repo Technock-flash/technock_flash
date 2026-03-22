@@ -60,8 +60,9 @@ const AdminLayout = lazy(() =>
   import("../components/AdminLayout").then((m) => ({ default: m.AdminLayout }))
 );
 const AdminDashboardPage = lazy(() =>
-  import("../features/admin/pages/AdminDashboardPage").then((m) => ({ default: m.AdminDashboardPage }))
+  import("../features/admin/pages/AdminDashboardPage")
 );
+
 const AdminVendorsPage = lazy(() =>
   import("../features/admin/pages/AdminVendorsPage").then((m) => ({ default: m.AdminVendorsPage }))
 );

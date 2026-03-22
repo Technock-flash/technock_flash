@@ -42,9 +42,9 @@ export function CmsFormModal({ isOpen, onClose, onSave, page }: Props) {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type } = e.target;
-    if (type === "checkbox" && e.target instanceof HTMLInputElement) {
-      setFormData((prev) => ({ ...prev, [name]: e.target.checked }));
+     const { name, value } = e.target;
+    if (e.target instanceof HTMLInputElement && e.target.type === "checkbox") {
+      setFormData((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -128,3 +128,5 @@ export function CmsFormModal({ isOpen, onClose, onSave, page }: Props) {
     </div>
   );
 }
+
+export default CmsFormModal;

@@ -2,10 +2,13 @@ import type { Request, Response } from "express";
 import type { Prisma } from "@prisma/client";
 import type { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { prisma } from "../../../infrastructure/database/prismaClient";
+import { PasswordHasher } from "../../../infrastructure/security/PasswordHasher";
 import {
   AdminAnalyticsService,
   type RevenuePeriod
 } from "../../../application/services/AdminAnalyticsService";
+
+const passwordHasher = new PasswordHasher();
 
 const analyticsService = new AdminAnalyticsService();
 
@@ -303,6 +306,143 @@ export class AdminController {
     ]);
 
     res.json({ items, total, page, limit });
+  }
+
+  // ─── Category CRUD ────────────────────────────────────────────────────────
+
+  async listAllCategories(_req: Request, res: Response): Promise<void> {
+    const categories = await prisma.category.findMany({
+      orderBy: { name: "asc" },
+    });
+    res.json(categories);
+  }
+
+  async createCategory(req: Request, res: Response): Promise<void> {
+    const { name, slug, description, parentId } = req.body as {
+      name?: string;
+      slug?: string;
+      description?: string | null;
+      parentId?: string | null;
+    };
+    if (!name || !slug) {
+      res.status(400).json({ error: "name and slug are required" });
+      return;
+    }
+    const category = await prisma.category.create({
+      data: { name, slug, description: description ?? null, parentId: parentId ?? null },
+    });
+    res.status(201).json(category);
+  }
+
+  async updateCategory(req: Request, res: Response): Promise<void> {
+    const { id } = req.params;
+    const { name, slug, description, parentId } = req.body as {
+      name?: string;
+      slug?: string;
+      description?: string | null;
+      parentId?: string | null;
+    };
+    const category = await prisma.category.update({
+      where: { id },
+      data: {
+        ...(name != null && { name }),
+        ...(slug != null && { slug }),
+        ...(description !== undefined && { description }),
+        ...(parentId !== undefined && { parentId: parentId ?? null }),
+      },
+    });
+    res.json(category);
+  }
+
+  async deleteCategory(req: Request, res: Response): Promise<void> {
+    const { id } = req.params;
+    await prisma.category.delete({ where: { id } });
+    res.status(204).send();
+  }
+
+  // ─── Admin Orders ─────────────────────────────────────────────────────────
+
+  async listAllOrders(req: Request, res: Response): Promise<void> {
+    const statusParam = req.query.status as string | undefined;
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    const validStatuses = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
+    const where =
+      statusParam && validStatuses.includes(statusParam)
+        ? { status: statusParam as "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" }
+        : {};
+
+    const [items, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        include: { customer: { select: { email: true } } },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.order.count({ where }),
+    ]);
+
+    res.json({ items, total, page, limit });
+  }
+
+  async updateOrderStatus(req: Request, res: Response): Promise<void> {
+    const { id } = req.params;
+    const { status } = req.body as { status?: string };
+
+    const validStatuses = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
+    if (!status || !validStatuses.includes(status)) {
+      res.status(400).json({ error: "Invalid status" });
+      return;
+    }
+
+    const order = await prisma.order.update({
+      where: { id },
+      data: { status: status as "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" },
+      include: { customer: { select: { email: true } } },
+    });
+    res.json(order);
+  }
+
+  // ─── Create User ──────────────────────────────────────────────────────────
+
+  async createUser(req: Request, res: Response): Promise<void> {
+    const { email, password, role } = req.body as {
+      email?: string;
+      password?: string;
+      role?: string;
+    };
+
+    if (!email || !password) {
+      res.status(400).json({ error: "email and password are required" });
+      return;
+    }
+
+    const validRoles = ["CUSTOMER", "VENDOR", "ADMIN"];
+    const userRole = role ?? "CUSTOMER";
+    if (!validRoles.includes(userRole)) {
+      res.status(400).json({ error: "Invalid role" });
+      return;
+    }
+
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      res.status(409).json({ error: "A user with this email already exists" });
+      return;
+    }
+
+    const passwordHash = await passwordHasher.hash(password);
+    const user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        role: userRole as "CUSTOMER" | "VENDOR" | "ADMIN",
+      },
+      select: { id: true, email: true, role: true, emailVerifiedAt: true, createdAt: true },
+    });
+    res.status(201).json(user);
   }
 
   async createActivityLog(

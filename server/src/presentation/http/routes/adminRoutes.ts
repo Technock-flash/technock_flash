@@ -38,5 +38,18 @@ export function createAdminRoutes(
 
   router.get("/activity-logs", ...guard, asyncHandler(controller.listActivityLogs.bind(controller)));
 
+  // Categories (admin CRUD)
+  router.get("/categories", ...guard, asyncHandler(controller.listAllCategories.bind(controller)));
+  router.post("/categories", ...guard, asyncHandler(controller.createCategory.bind(controller)));
+  router.patch("/categories/:id", ...guard, asyncHandler(controller.updateCategory.bind(controller)));
+  router.delete("/categories/:id", ...guard, asyncHandler(controller.deleteCategory.bind(controller)));
+
+  // Create user (admin)
+  router.post("/users", ...guard, asyncHandler(controller.createUser.bind(controller)));
+
+  // Admin orders
+  router.get("/orders", ...guard, asyncHandler(controller.listAllOrders.bind(controller)));
+  router.patch("/orders/:id/status", ...guard, asyncHandler(controller.updateOrderStatus.bind(controller)));
+
   return router;
 }

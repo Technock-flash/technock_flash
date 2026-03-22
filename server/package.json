@@ -12,7 +12,9 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "list-admins": "ts-node src/scripts/listAdmins.ts",
+    "make-admin": "ts-node src/scripts/makeAdmin.ts"
   },
   "keywords": [
     "zimmarket",

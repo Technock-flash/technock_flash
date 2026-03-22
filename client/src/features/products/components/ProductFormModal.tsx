@@ -233,3 +233,5 @@ export function ProductFormModal({ isOpen, onClose, onSave, product }: Props) {
     </div>
   );
 }
+
+export default ProductFormModal;

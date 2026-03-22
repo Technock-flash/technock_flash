@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Category } from "../../../services/api/adminApi";
+import type { Category } from "../services/api/adminApi";
 import styles from "./CategoryFormModal.module.css";
 
 type CategoryFormData = {

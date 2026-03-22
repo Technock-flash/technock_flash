@@ -82,3 +82,5 @@ export function UserFormModal({ isOpen, onClose, onSave }: Props) {
     </div>
   );
 }
+
+export default UserFormModal;

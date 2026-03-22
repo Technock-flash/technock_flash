@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { adminApi } from "../../../services/api/adminApi";
+import { adminApi } from "../../services/api/adminApi";
 
 export interface AdminStats {
   users: number;
@@ -15,15 +15,17 @@ export function useAdminStats() {
   useEffect(() => {
     const fetchStats = async () => {
       setLoading(true);
+      setError(null);
       try {
         const data = await adminApi.getStats();
         setStats(data);
       } catch (err: any) {
-        setError(err.message || 'Failed to fetch stats');
+        setError(err.message || "Failed to load admin stats");
       } finally {
         setLoading(false);
       }
     };
+
     fetchStats();
   }, []);
 

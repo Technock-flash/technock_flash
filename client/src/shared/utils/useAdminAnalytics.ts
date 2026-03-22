@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { adminApi } from "../../../services/api/adminApi";
+import { adminApi } from "../../services/api/adminApi";
 
-export type Period = 'day' | 'week' | 'month';
+export type Period = "day" | "week" | "month";
 
 export interface AnalyticsData {
   totalRevenueCents: number;
@@ -18,16 +18,18 @@ export function useAdminAnalytics(period: Period) {
   useEffect(() => {
     const fetchAnalytics = async () => {
       setLoading(true);
+      setError(null);
       try {
         const data = await adminApi.getAnalytics(period);
         // @ts-ignore
         setAnalytics(data);
-    } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Failed to load admin stats");
+      } catch (err: any) {
+        setError(err.message || "Failed to load analytics");
       } finally {
         setLoading(false);
       }
     };
+
     fetchAnalytics();
   }, [period]);
 

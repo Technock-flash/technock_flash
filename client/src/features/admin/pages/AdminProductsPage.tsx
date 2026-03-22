@@ -5,7 +5,7 @@ import {
 } from "../../../services/api/adminApi";
 import { formatPrice } from "../../../shared/utils/format";
 import { Pagination } from "../../../shared/ui/Pagination";
-import { useAdminTable } from "../hooks/useAdminTable";
+import { useAdminTable } from "./useAdminTable";
 import { useEntityManagement } from "../../../shared/hooks/useEntityManagement";
 import { ProductFormModal } from "../../products/components/ProductFormModal";
 import { ConfirmationModal } from "../../../shared/ui/ConfirmationModal";
