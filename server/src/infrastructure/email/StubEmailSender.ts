@@ -1,5 +1,4 @@
-import type { IEmailSender } from "../../domain/ports/IEmailSender";
-import { env } from "../../config/env";
+import type { IEmailSender, OrderConfirmationDetails } from "../../domain/ports/IEmailSender";
 
 /**
  * Stub implementation: logs verification link to console.
@@ -7,9 +6,19 @@ import { env } from "../../config/env";
  */
 export class StubEmailSender implements IEmailSender {
   async sendVerificationEmail(email: string, verificationLink: string): Promise<void> {
-    if (env.nodeEnv === "development") {
-      // eslint-disable-next-line no-console
-      console.log(`[Email] Verification for ${email}: ${verificationLink}`);
-    }
+    // eslint-disable-next-line no-console
+    console.log(`[StubEmailSender] Verification email to ${email}: ${verificationLink}`);
+  }
+
+  async sendPasswordResetEmail(email: string, resetLink: string): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log(`[StubEmailSender] Password reset email to ${email}: ${resetLink}`);
+  }
+
+  async sendOrderConfirmationEmail(email: string, order: OrderConfirmationDetails): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log(
+      `[StubEmailSender] Order confirmation to ${email}: order ${order.orderNumber} status ${order.status} total ${order.totalCents}`
+    );
   }
 }

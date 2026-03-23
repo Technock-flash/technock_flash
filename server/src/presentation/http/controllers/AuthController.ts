@@ -38,11 +38,20 @@ export const forgotPasswordSchema = z.object({
   email: z.string().email()
 });
 
-export const resetPasswordSchema = z.object({
-  email: z.string().email(),
-  secretAnswer: z.string().min(1),
-  newPassword: z.string().min(8)
-});
+export const resetPasswordSchema = z
+  .object({
+    email: z.string().email().optional(),
+    token: z.string().optional(),
+    secretAnswer: z.string().min(1).optional(),
+    newPassword: z.string().min(8)
+  })
+  .refine(
+    (data) => Boolean(data.token) || (data.email && data.secretAnswer),
+    {
+      message: "Either token or email+secretAnswer is required",
+      path: ["token", "email", "secretAnswer"]
+    }
+  );
 
 export const verifyEmailSchema = z.object({
   token: z.string().min(1)

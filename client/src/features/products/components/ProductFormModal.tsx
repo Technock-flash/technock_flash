@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import LazyImage from "../../../components/LazyImage";
 import styles from "./ProductFormModal.module.css";
 import type { Product } from "../../../services/api/productApi";
 
@@ -45,6 +46,8 @@ const predefinedCategories = [
   },
   // ... rest of categories
 ];
+
+import { getImageUrl } from "../../../shared/utils/imageUrl";
 
 export function ProductFormModal({ isOpen, onClose, onSave, product }: Props) {
   const [formData, setFormData] = useState<ProductFormData>(INITIAL_STATE);
@@ -143,7 +146,7 @@ export function ProductFormModal({ isOpen, onClose, onSave, product }: Props) {
 
   return (
     <div className={styles.overlay}>
-      <div className={styles.modal}>
+      <div className={styles.modal} style={{ maxHeight: "90vh", overflowY: "auto" }}>
         <h2>{product?.id ? "Edit Product" : "Create New Product"}</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
@@ -195,7 +198,15 @@ export function ProductFormModal({ isOpen, onClose, onSave, product }: Props) {
               <div className={styles.existingImagesGrid}>
                 {product.images.map(url => (
                   <div key={url} className={`${styles.existingImageWrapper} ${imagesToRemove.includes(url) ? styles.markedForRemoval : ""}`}>
-                    <img src={url} alt="Product" className={styles.existingImage} />
+                    <LazyImage
+                      src={getImageUrl(url)}
+                      alt={`Existing product image ${url}`}
+                      className={styles.existingImage}
+                      placeholder="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect width='200' height='150' fill='%23eceff1'/%3E%3C/svg%3E"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://via.placeholder.com/150?text=Not+Found";
+                      }}
+                    />
                     <button type="button" onClick={() => toggleImageForRemoval(url)} className={styles.removeBtn}>
                       {imagesToRemove.includes(url) ? "Undo" : "×"}
                     </button>
@@ -212,7 +223,15 @@ export function ProductFormModal({ isOpen, onClose, onSave, product }: Props) {
               <div className={styles.existingImagesGrid}>
                 {imagePreviews.map((url, i) => (
                   <div key={`${url}-${i}`} className={styles.existingImageWrapper}>
-                    <img src={url} alt="New product preview" className={styles.existingImage} />
+                    <LazyImage
+                      src={url}
+                      alt={`New product preview ${i + 1}`}
+                      className={styles.existingImage}
+                      placeholder="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect width='200' height='150' fill='%23eceff1'/%3E%3C/svg%3E"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://via.placeholder.com/150?text=Not+Found";
+                      }}
+                    />
                     <button type="button" onClick={() => removeImage(i)} className={styles.removeBtn}>
                       ×
                     </button>

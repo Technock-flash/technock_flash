@@ -38,7 +38,16 @@ export const env = {
   auth: {
     requireEmailVerification: process.env.REQUIRE_EMAIL_VERIFICATION === "true",
     verificationTokenTtlSeconds: 24 * 60 * 60,
+    passwordResetTokenTtlSeconds: Number(process.env.PASSWORD_RESET_TOKEN_TTL_SECONDS ?? "3600"),
     baseUrl: getEnv("BASE_URL", "http://localhost:5173")
+  },
+  email: {
+    host: process.env.EMAIL_HOST ?? "",
+    port: Number(process.env.EMAIL_PORT ?? "587"),
+    secure: process.env.EMAIL_SECURE === "true",
+    user: process.env.EMAIL_USER ?? "",
+    pass: process.env.EMAIL_PASS ?? "",
+    from: process.env.EMAIL_FROM ?? "no-reply@zimmarket.local"
   }
 };
 

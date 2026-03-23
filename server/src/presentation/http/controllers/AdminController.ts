@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import type { Prisma } from "@prisma/client";
 import type { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import type { IEmailSender } from "../../../domain/ports/IEmailSender";
 import { prisma } from "../../../infrastructure/database/prismaClient";
 import { PasswordHasher } from "../../../infrastructure/security/PasswordHasher";
 import {
@@ -13,6 +14,8 @@ const passwordHasher = new PasswordHasher();
 const analyticsService = new AdminAnalyticsService();
 
 export class AdminController {
+  constructor(private readonly emailSender: IEmailSender) {}
+
   async getStats(_req: Request, res: Response): Promise<void> {
     const [users, vendors, orders] = await Promise.all([
       prisma.user.count(),
@@ -401,8 +404,27 @@ export class AdminController {
     const order = await prisma.order.update({
       where: { id },
       data: { status: status as "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" },
-      include: { customer: { select: { email: true } } },
+      include: { customer: { select: { email: true } }, items: { include: { product: true } } },
     });
+
+    try {
+      await this.emailSender.sendOrderConfirmationEmail(order.customer.email, {
+        orderNumber: order.orderNumber,
+        status: order.status,
+        totalCents: order.totalCents,
+        items: order.items.map((item) => ({
+          productName: item.product.name,
+          quantity: item.quantity,
+          unitPriceCents: item.priceCents,
+          lineTotalCents: item.totalCents,
+        })),
+      });
+    } catch (emailError) {
+      // Do not fail order status update for email send errors.
+      // eslint-disable-next-line no-console
+      console.warn("Order status updated but failed to send confirmation email:", emailError);
+    }
+
     res.json(order);
   }
 

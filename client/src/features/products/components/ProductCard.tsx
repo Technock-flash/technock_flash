@@ -2,10 +2,12 @@ import { memo } from "react";
 import { Link } from "react-router-dom";
 import type { Product } from "../../../services/api/productApi";
 import { formatPrice } from "../../../shared/utils/format";
+import { getImageUrl } from "../../../shared/utils/imageUrl";
 import { useAppDispatch } from "../../../core/hooks/useAppDispatch";
 import { useAppSelector } from "../../../core/hooks/useAppSelector";
 import { addItem } from "../../cart/cartSlice";
 import { toggleWishlist } from "../wishlistSlice";
+import LazyImage from "../../../components/LazyImage";
 import styles from "./ProductCard.module.css";
 
 interface Props {
@@ -37,10 +39,24 @@ export const ProductCard = memo<Props>(({ product }) => {
     dispatch(toggleWishlist(product));
   };
 
+  const imageUrl = product.images?.[0] ? getImageUrl(product.images[0]) : "";
+
   return (
     <Link to={`/products/${product.id}`} className={styles.card}>
       <div className={styles.image}>
-        <div className={styles.placeholder}>No image</div>
+        {imageUrl ? (
+          <LazyImage
+            src={imageUrl}
+            alt={product.name}
+            className={styles.productImage}
+            placeholder="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect width='400' height='400' fill='%23eceff1'/%3E%3C/svg%3E"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "https://via.placeholder.com/400?text=Not+Found";
+            }}
+          />
+        ) : (
+          <div className={styles.placeholder}>No image</div>
+        )}
         <button
           type="button"
           className={styles.wishBtn}

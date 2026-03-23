@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { productApi, type Product } from "../../../services/api/productApi";
 import { formatPrice } from "../../../shared/utils/format";
+import { getImageUrl } from "../../../shared/utils/imageUrl";
 import { useAppDispatch } from "../../../core/hooks/useAppDispatch";
 import { useAppSelector } from "../../../core/hooks/useAppSelector";
 import { addItem } from "../../cart/cartSlice";
 import { toggleWishlist } from "../wishlistSlice";
 import { PageContainer } from "../../../shared/ui/PageContainer";
+import LazyImage from "../../../components/LazyImage";
 
 export function ProductDetailsPage() {
   const { productId } = useParams<{ productId: string }>();
@@ -57,6 +59,8 @@ export function ProductDetailsPage() {
     dispatch(toggleWishlist(product));
   };
 
+  const primaryImageUrl = product.images?.[0] ? getImageUrl(product.images[0]) : "";
+
   return (
     <PageContainer>
       <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
@@ -67,13 +71,26 @@ export function ProductDetailsPage() {
             aspectRatio: 1,
             background: "#2a2a2a",
             borderRadius: 8,
+            overflow: "hidden",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             color: "#555",
           }}
         >
-          No image
+          {primaryImageUrl ? (
+            <LazyImage
+              src={primaryImageUrl}
+              alt={product.name}
+              className="product-details-image"
+              placeholder="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect width='400' height='400' fill='%23eceff1'/%3E%3C/svg%3E"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "https://via.placeholder.com/400?text=Not+Found";
+              }}
+            />
+          ) : (
+            <span>No image</span>
+          )}
         </div>
         <div style={{ flex: 1, minWidth: 280 }}>
           <h1 style={{ margin: "0 0 0.5rem" }}>{product.name}</h1>

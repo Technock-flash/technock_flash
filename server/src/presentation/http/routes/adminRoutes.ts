@@ -2,13 +2,15 @@ import type { RequestHandler } from "express";
 import { Router } from "express";
 import { asyncHandler } from "../../../shared/utils/asyncHandler";
 import { AdminController } from "../controllers/AdminController";
-
-const controller = new AdminController();
+import type { IEmailSender } from "../../../domain/ports/IEmailSender";
 
 export function createAdminRoutes(
   auth: RequestHandler,
-  requireAdmin: RequestHandler
+  requireAdmin: RequestHandler,
+  emailSender: IEmailSender
 ): Router {
+  const controller = new AdminController(emailSender);
+
   const router = Router();
   const guard = [auth, requireAdmin];
 

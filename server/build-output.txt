@@ -1,0 +1,129 @@
+
+> zimmarket-backend@1.0.0 build
+> tsc
+
+src/application/use-cases/products/GetProductUseCase.ts(9,44): error TS2339: Property 'findById' does not exist on type 'IProductRepository'.
+src/application/use-cases/products/index.ts(2,27): error TS2307: Cannot find module '../../composition/container' or its corresponding type declarations.
+src/application/use-cases/products/index.ts(3,32): error TS2307: Cannot find module '../middlewares/authMiddleware' or its corresponding type declarations.
+src/application/use-cases/products/index.ts(4,30): error TS2307: Cannot find module '../middlewares/requireRoles' or its corresponding type declarations.
+src/application/use-cases/products/ListProductsUseCase.ts(31,7): error TS2353: Object literal may only specify known properties, and 'vendorId' does not exist in type 'ProductListFilters'.
+src/application/use-cases/products/productRoutes.ts(27,18): error TS2353: Object literal may only specify known properties, and 'userId' does not exist in type 'VendorWhereInput'.
+src/application/use-cases/products/productRoutes.ts(47,9): error TS2322: Type '{ name: any; description: any; priceCents: number; inStock: number; images: string[]; vendorId: string; moderationStatus: "PENDING"; }' is not assignable to type '(Without<ProductCreateInput, ProductUncheckedCreateInput> & ProductUncheckedCreateInput) | (Without<...> & ProductCreateInput)'.
+  Type '{ name: any; description: any; priceCents: number; inStock: number; images: string[]; vendorId: string; moderationStatus: "PENDING"; }' is not assignable to type 'Without<ProductCreateInput, ProductUncheckedCreateInput> & ProductUncheckedCreateInput'.
+    Property 'slug' is missing in type '{ name: any; description: any; priceCents: number; inStock: number; images: string[]; vendorId: string; moderationStatus: "PENDING"; }' but required in type 'ProductUncheckedCreateInput'.
+src/application/use-cases/products/productRoutes.ts(79,21): error TS2353: Object literal may only specify known properties, and 'userId' does not exist in type '(Without<VendorRelationFilter, VendorWhereInput> & VendorWhereInput) | (Without<VendorWhereInput, VendorRelationFilter> & VendorRelationFilter)'.
+src/application/use-cases/products/productRoutes.ts(135,21): error TS2353: Object literal may only specify known properties, and 'userId' does not exist in type '(Without<VendorRelationFilter, VendorWhereInput> & VendorWhereInput) | (Without<VendorWhereInput, VendorRelationFilter> & VendorRelationFilter)'.
+src/application/use-cases/products/products.ts(1,27): error TS2307: Cannot find module '/client' or its corresponding type declarations.
+src/domain/entities/Product.ts(4,3): error TS2564: Property 'id' has no initializer and is not definitely assigned in the constructor.
+src/domain/entities/Product.ts(5,3): error TS2564: Property 'name' has no initializer and is not definitely assigned in the constructor.
+src/domain/entities/Product.ts(6,3): error TS2564: Property 'description' has no initializer and is not definitely assigned in the constructor.
+src/domain/entities/Product.ts(7,3): error TS2564: Property 'priceCents' has no initializer and is not definitely assigned in the constructor.
+src/domain/entities/Product.ts(8,3): error TS2564: Property 'inStock' has no initializer and is not definitely assigned in the constructor.
+src/domain/entities/Product.ts(9,3): error TS2564: Property 'images' has no initializer and is not definitely assigned in the constructor.
+src/domain/entities/Product.ts(10,3): error TS2564: Property 'categoryId' has no initializer and is not definitely assigned in the constructor.
+src/domain/entities/Product.ts(11,3): error TS2564: Property 'vendorId' has no initializer and is not definitely assigned in the constructor.
+src/domain/entities/Product.ts(12,3): error TS2564: Property 'moderationStatus' has no initializer and is not definitely assigned in the constructor.
+src/domain/entities/Product.ts(14,3): error TS2564: Property 'isPublished' has no initializer and is not definitely assigned in the constructor.
+src/domain/entities/Product.ts(15,3): error TS2564: Property 'createdAt' has no initializer and is not definitely assigned in the constructor.
+src/domain/entities/Product.ts(16,3): error TS2564: Property 'updatedAt' has no initializer and is not definitely assigned in the constructor.
+src/domain/repositories/CreateProductUseCase.ts(1,61): error TS2307: Cannot find module '../../../domain/repositories/IProductRepository' or its corresponding type declarations.
+src/domain/repositories/CreateProductUseCase.ts(2,42): error TS2307: Cannot find module '../../../domain/repositories/ICategoryRepository' or its corresponding type declarations.
+src/domain/repositories/CreateProductUseCase.ts(3,40): error TS2307: Cannot find module '../../../domain/ports/IProductListCache' or its corresponding type declarations.
+src/domain/repositories/CreateProductUseCase.ts(4,26): error TS2307: Cannot find module '../../../shared/errors/AppError' or its corresponding type declarations.
+src/domain/repositories/CreateProductUseCase.ts(5,25): error TS2307: Cannot find module '../../../domain/entities/Product' or its corresponding type declarations.
+src/domain/repositories/PrismaProductRepository.ts(2,81): error TS2307: Cannot find module '../../../domain/repositories/IProductRepository' or its corresponding type declarations.
+src/domain/repositories/PrismaProductRepository.ts(3,30): error TS2307: Cannot find module '../../../domain/entities/Product' or its corresponding type declarations.
+src/domain/repositories/PrismaProductRepository.ts(9,25): error TS1361: 'Product' cannot be used as a value because it was imported using 'import type'.
+src/domain/repositories/PrismaProductRepository.ts(22,7): error TS2322: Type '{ name: any; description: any; priceCents: any; inStock: any; images: any; vendorId: any; moderationStatus: "PENDING"; isActive: true; }' is not assignable to type '(Without<ProductCreateInput, ProductUncheckedCreateInput> & ProductUncheckedCreateInput) | (Without<...> & ProductCreateInput)'.
+  Type '{ name: any; description: any; priceCents: any; inStock: any; images: any; vendorId: any; moderationStatus: "PENDING"; isActive: true; }' is not assignable to type 'Without<ProductUncheckedCreateInput, ProductCreateInput> & ProductCreateInput'.
+    Type '{ name: any; description: any; priceCents: any; inStock: any; images: any; vendorId: any; moderationStatus: "PENDING"; isActive: true; }' is missing the following properties from type 'ProductCreateInput': slug, vendor
+src/infrastructure/database/AdminDeletedProductsPage.tsx(1,50): error TS2307: Cannot find module 'react' or its corresponding type declarations.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(2,26): error TS2307: Cannot find module '../../services/api/adminApi' or its corresponding type declarations.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(3,35): error TS2307: Cannot find module '../../core/shared/ui/ConfirmationModal' or its corresponding type declarations.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(4,20): error TS2307: Cannot find module './AdminTable.module.css' or its corresponding type declarations.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(48,36): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(62,36): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(72,5): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(72,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(73,7): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(73,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(74,9): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(74,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(74,29): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(75,9): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(75,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(77,9): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(78,7): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(80,19): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(80,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(80,32): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(81,17): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(81,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(81,56): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(83,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(85,13): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(85,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(85,42): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(87,13): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(87,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(88,15): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(88,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(89,17): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(89,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(90,19): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(90,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(90,27): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(91,19): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(91,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(91,29): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(92,19): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(92,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(92,33): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(93,19): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(93,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(93,57): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(94,17): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(95,15): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(96,15): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(96,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(97,32): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(98,19): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(98,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(99,21): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(99,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(99,33): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(100,21): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(100,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(100,50): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(101,21): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(101,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(101,65): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(102,21): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(102,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(103,23): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(103,23): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(105,23): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(106,23): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(106,23): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(108,23): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(109,21): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(110,19): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(112,15): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(113,13): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(118,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(128,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/infrastructure/database/AdminDeletedProductsPage.tsx(137,5): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+src/infrastructure/database/adminProductRoutes.ts(3,30): error TS2307: Cannot find module '../../../shared/utils/asyncHandler' or its corresponding type declarations.
+src/infrastructure/database/adminProductRoutes.ts(4,24): error TS2307: Cannot find module '../../../infrastructure/database/prismaClient' or its corresponding type declarations.
+src/infrastructure/database/adminProductRoutes.ts(17,25): error TS7006: Parameter 'req' implicitly has an 'any' type.
+src/infrastructure/database/adminProductRoutes.ts(17,30): error TS7006: Parameter 'res' implicitly has an 'any' type.
+src/infrastructure/database/adminProductRoutes.ts(39,25): error TS7006: Parameter 'req' implicitly has an 'any' type.
+src/infrastructure/database/adminProductRoutes.ts(39,30): error TS7006: Parameter 'res' implicitly has an 'any' type.
+src/infrastructure/database/adminProductRoutes.ts(62,25): error TS7006: Parameter 'req' implicitly has an 'any' type.
+src/infrastructure/database/adminProductRoutes.ts(62,30): error TS7006: Parameter 'res' implicitly has an 'any' type.
+src/infrastructure/database/PrismaProductRepository.ts(88,7): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/presentation/http/controllers/ProductController.ts(7,33): error TS2307: Cannot find module '@zimmarket/shared' or its corresponding type declarations.
+src/presentation/http/middlewares/LocalFileUploader.ts(1,36): error TS2307: Cannot find module '../../domain/ports/IFileUploader' or its corresponding type declarations.
+src/presentation/http/routes/product.routes.ts(2,10): error TS2305: Module '"../../../composition/container"' has no exported member 'container'.
+src/presentation/http/routes/product.routes.ts(4,30): error TS2307: Cannot find module '../middlewares/requireRoles' or its corresponding type declarations.

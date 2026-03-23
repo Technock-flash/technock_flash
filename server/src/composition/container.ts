@@ -5,11 +5,13 @@ import { PrismaProductRepository } from "../infrastructure/database/PrismaProduc
 import { MemoryTokenStore } from "../infrastructure/cache/MemoryTokenStore";
 import { MemoryProductListCache } from "../infrastructure/cache/MemoryProductListCache";
 import { MemoryVerificationTokenStore } from "../infrastructure/cache/MemoryVerificationTokenStore";
+import { MemoryPasswordResetTokenStore } from "../infrastructure/cache/MemoryPasswordResetTokenStore";
 import { MemoryRateLimitStore } from "../infrastructure/cache/MemoryRateLimitStore";
 import { JwtService } from "../infrastructure/security/JwtService";
 import { LocalFileUploader } from "../presentation/http/middlewares/LocalFileUploader";
 import { PasswordHasher } from "../infrastructure/security/PasswordHasher";
 import { StubEmailSender } from "../infrastructure/email/StubEmailSender";
+import { SmtpEmailSender } from "../infrastructure/email/SmtpEmailSender";
 import { LoginUseCase } from "../application/use-cases/auth/LoginUseCase";
 import { RegisterUseCase } from "../application/use-cases/auth/RegisterUseCase";
 import { RefreshTokenUseCase } from "../application/use-cases/auth/RefreshTokenUseCase";
@@ -50,12 +52,20 @@ const productListCache = useMemory
 const verificationStore = useMemory
   ? new MemoryVerificationTokenStore()
   : new (require("../infrastructure/cache/RedisVerificationTokenStore").RedisVerificationTokenStore)();
+const passwordResetTokenStore = useMemory
+  ? new MemoryPasswordResetTokenStore()
+  : new (require("../infrastructure/cache/RedisPasswordResetTokenStore").RedisPasswordResetTokenStore)();
 const rateLimitStore = useMemory
   ? new MemoryRateLimitStore()
   : new (require("../infrastructure/cache/RedisRateLimitStore").RedisRateLimitStore)();
 const jwtService = new JwtService();
 const passwordHasher = new PasswordHasher();
-const emailSender = new StubEmailSender();
+
+const emailSender =
+  env.nodeEnv === "production"
+    ? new SmtpEmailSender()
+    : new StubEmailSender();
+
 const fileUploader = new LocalFileUploader();
 
 // Application
@@ -77,8 +87,8 @@ const resendVerificationUseCase = new ResendVerificationUseCase(
   verificationStore,
   emailSender
 );
-const forgotPasswordUseCase = new ForgotPasswordUseCase(userRepo);
-const resetPasswordUseCase = new ResetPasswordUseCase(userRepo, passwordHasher);
+const forgotPasswordUseCase = new ForgotPasswordUseCase(userRepo, passwordResetTokenStore, emailSender);
+const resetPasswordUseCase = new ResetPasswordUseCase(userRepo, passwordHasher, passwordResetTokenStore);
 const listProductsUseCase = new ListProductsUseCase(productRepo, productListCache);
 const getProductUseCase = new GetProductUseCase(productRepo);
 const createProductUseCase = new CreateProductUseCase(
@@ -125,4 +135,4 @@ export const orderRoutes = createOrderRoutes(auth, requireRoles(["CUSTOMER", "VE
 export const vendorRoutes = createVendorRoutes();
 export const reviewRoutes = createReviewRoutes(auth);
 export const couponRoutes = createCouponRoutes(auth, requireRoles(["ADMIN"]));
-export const adminRoutes = createAdminRoutes(auth, requireRoles(["ADMIN"]));
+export const adminRoutes = createAdminRoutes(auth, requireRoles(["ADMIN"]), emailSender);
